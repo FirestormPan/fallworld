@@ -19,3 +19,18 @@
     background-color: #3498db;
     border-radius: 50%;
 }
+
+
+.falling-item{
+    position: absolute;
+    top:0;
+    border-radius: 10%;
+}
+
+.falling-item.good {
+  background-color: green;
+}
+
+.falling-item.bad {
+  background-color: red;
+}

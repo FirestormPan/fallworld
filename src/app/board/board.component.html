@@ -1,4 +1,20 @@
 <div #board class="board-container">
 
     <div #player class="player" [style.left.px]="playerX"></div>
+
+    <div>
+
+        @for (item of fallingItems; track item){
+            <div class="falling-item"
+                [class.good]="item.type==='good'"
+                [class.bad]="item.type==='bad'"
+                [style.left.px]="item.x"
+                [style.top.px]="item.y"
+                [style.width.px]="item.width"
+                [style.height.px]="item.height">
+            </div>
+        }    
+        
+    </div>
+
 </div>
