@@ -1,20 +1,18 @@
 <div #board class="board-container">
+    {{score}}
 
     <div #player class="player" [style.left.px]="playerX"></div>
 
     <div>
-
         @for (item of fallingItems; track item){
             <div class="falling-item"
-                [class.good]="item.type==='good'"
-                [class.bad]="item.type==='bad'"
+                [class] = "item.type"
                 [style.left.px]="item.x"
                 [style.top.px]="item.y"
                 [style.width.px]="item.width"
                 [style.height.px]="item.height">
             </div>
         }    
-        
     </div>
 
 </div>

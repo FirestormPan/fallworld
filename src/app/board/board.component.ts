@@ -38,6 +38,8 @@ export class BoardComponent {
 
   fallingItems: FallingItem[] = [];
 
+  score: number = 0;
+
   pressedKeys: Set<string> = new Set(); // Track pressed keys to declare direction in movement
 
   //====== Keyboard Input Handling ======
@@ -65,6 +67,27 @@ export class BoardComponent {
   //function to attach and detach resize event listener
   private resizeHandler = () => this.updateBoardSize();
  
+  get playerRectangle() {
+    return {
+      x: this.playerX,
+      y: this.boardHeight - this.playerRef.nativeElement.offsetHeight,
+      width: this.playerWidth,
+      height: this.playerRef.nativeElement.offsetHeight
+    };
+  }
+
+  isCollidingWithPlayer(item: FallingItem): boolean {
+    const player = this.playerRectangle;
+
+    return (
+      item.x < player.x + player.width &&
+      item.x + item.width > player.x &&
+      item.y < player.y + player.height &&
+      item.y + item.height > player.y
+    );
+  }
+
+
 
   ngAfterViewInit() {
     this.updateBoardSize();
@@ -85,10 +108,7 @@ export class BoardComponent {
       this.updatePlayerPosition();
       this.updateItems();
 
-
-      //check colliisions
-
-      //removeOffscreen ites
+      this.checkColisions();
 
     }, 20); // roughly 50fps
   }
@@ -112,7 +132,7 @@ export class BoardComponent {
   startSpawner(){
     this.spawnIntervalId = window.setInterval(() => {
       this.spawnItem();
-    }, this.spawnRate); // spawn every second
+    }, this.spawnRate);
   }
 
   spawnItem() {
@@ -132,10 +152,34 @@ export class BoardComponent {
     this.fallingItems.push(newItem);
   }
 
+
+  checkColisions(){
+    this.fallingItems =this.fallingItems.filter( item=>{
+      if(!this.isCollidingWithPlayer(item)){
+        return true
+      }
+
+      if(item.type === 'good'){
+        this.score++
+        if(this.score % 3 === 0){
+          this.increaseDifficulty()
+        }
+      }else if(item.type === 'bad'){
+        this.endGame()
+      }
+      return false
+    });
+  }
+
   increaseDifficulty() {
     clearInterval(this.spawnIntervalId);
     this.spawnRate *= 0.9;
     this.startSpawner();
+  }
+
+  endGame() {
+    clearInterval(this.gameIntervalId);
+    clearInterval(this.spawnIntervalId);
   }
 
 }
