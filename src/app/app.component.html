@@ -1,4 +1,9 @@
 <h3>Fall world</h3>
 
+<span>High Score: {{ highScore }} </span>
+<span>Your Score: {{ score }}</span>
+
+<button [disabled]="!gameEnded" (click)="playAgain()">Play Again</button>
+
 
 <router-outlet />

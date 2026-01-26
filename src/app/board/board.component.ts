@@ -1,4 +1,5 @@
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { GameStateServiceService } from '../shared/services/game-state-service.service';
 
 
 type FallingItem ={
@@ -19,6 +20,9 @@ type FallingItem ={
   styleUrl: './board.component.css'
 })
 export class BoardComponent {
+
+  constructor(private gameService: GameStateServiceService) {}
+
   private gameIntervalId?: number;
   private spawnIntervalId?: number;
 
@@ -37,8 +41,6 @@ export class BoardComponent {
   spawnRate = 3000; //will later be changed to variable difficulty
 
   fallingItems: FallingItem[] = [];
-
-  score: number = 0;
 
   pressedKeys: Set<string> = new Set(); // Track pressed keys to declare direction in movement
 
@@ -87,6 +89,11 @@ export class BoardComponent {
     );
   }
 
+  ngOnInit() {
+    this.gameService.resetTrigger$.subscribe(
+      ()=> this.resetBoard()
+    )
+  }
 
 
   ngAfterViewInit() {
@@ -158,10 +165,9 @@ export class BoardComponent {
       if(!this.isCollidingWithPlayer(item)){
         return true
       }
-
       if(item.type === 'good'){
-        this.score++
-        if(this.score % 3 === 0){
+        this.gameService.scoreIncremenet();
+        if(this.gameService.getScore() % 3 === 0){
           this.increaseDifficulty()
         }
       }else if(item.type === 'bad'){
@@ -180,6 +186,20 @@ export class BoardComponent {
   endGame() {
     clearInterval(this.gameIntervalId);
     clearInterval(this.spawnIntervalId);
+    
+    this.gameService.endGame();
   }
 
+  resetBoard(){
+    //reset all values
+    this.fallingItems =[];
+    this.playerX = 100;
+    this.spawnRate = 3000;
+    this.pressedKeys.clear();
+    
+    //restart the loops
+    this.startGameLoop();
+    this.startSpawner();
+
+  }
 }
