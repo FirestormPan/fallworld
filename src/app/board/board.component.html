@@ -7,7 +7,7 @@
         <h1 class="game-paused">Game Paused!</h1>
     }
 
-    <div #player class="player" [style.left.px]="playerX"></div>
+    <div #player class="player" [style.left.px]="geometry.playerX"></div>
 
     <div>
         @for (item of fallingItems; track item){

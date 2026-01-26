@@ -12,6 +12,14 @@ type FallingItem ={
   type: 'good' | 'bad';
 }
 
+interface BoardGeometry{
+  boardWidth: number;
+  boardHeight: number;
+  playerWidth: number;
+  playerHeight: number;
+  playerX: number;
+  step: number;
+}
 
 @Component({
   selector: 'app-board',
@@ -32,12 +40,14 @@ export class BoardComponent {
   @ViewChild('player') playerRef!: ElementRef<HTMLDivElement>;
 
   // Dimensions will be updated after view init
-  boardWidth = 0;
-  boardHeight = 0
-  playerWidth = 0;
-
-  playerX = 100; // horizontal position in px
-  step = 0; // will be updated after view init
+  geometry: BoardGeometry = {
+    boardWidth: 0,
+    boardHeight: 0,
+    playerWidth: 0,
+    playerHeight: 0,
+    playerX: 0,
+    step: 0
+  };
 
   spawnRate = 3000; //will later be changed to variable difficulty
 
@@ -49,9 +59,25 @@ export class BoardComponent {
 
   boardisPaused: boolean = false;
 
+  // ========Create the board based on the sizes of the screeen=======
+  updateBoardSizes() {
+    const board = this.boardRef.nativeElement;
+    const player = this.playerRef.nativeElement;
+
+    this.geometry = {
+      boardWidth: board.offsetWidth,
+      boardHeight: board.offsetHeight,
+      playerWidth: player.offsetWidth,
+      playerHeight: player.offsetHeight,
+      playerX: 100,
+      step: board.offsetWidth * 0.01
+    };
+  }
+
   //====== Keyboard Input Handling ======
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
+    if(this.boardisPaused) return;
     
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
     event.preventDefault();
@@ -64,23 +90,26 @@ export class BoardComponent {
     this.pressedKeys.delete(event.key);
   }
 
-  updateBoardSize() {
-    this.boardWidth = this.boardRef.nativeElement.offsetWidth;
-    this.boardHeight = this.boardRef.nativeElement.offsetHeight;
-    this.playerWidth = this.playerRef.nativeElement.offsetWidth;
-    this.step = this.boardWidth * 0.01;
-    console.log(`Board width: ${this.boardWidth}, Player width: ${this.playerWidth}`);  
+  //prevent the spawner from creating objects while the loop cannot move them (browser thing)
+  //TODO: might be buggy and somehow restart the game
+  @HostListener('document:visibilitychange')
+  onVisibilityChange() {
+    if (document.hidden) {
+      this.pauseBoard();
+    } else {
+      this.resumeBoard();
+    }
   }
 
   //function to attach and detach resize event listener
-  private resizeHandler = () => this.updateBoardSize();
+  private resizeHandler = () => this.updateBoardSizes();
  
   get playerRectangle() {
     return {
-      x: this.playerX,
-      y: this.boardHeight - this.playerRef.nativeElement.offsetHeight,
-      width: this.playerWidth,
-      height: this.playerRef.nativeElement.offsetHeight
+      x: this.geometry.playerX,
+      y: this.geometry.boardHeight - this.geometry.playerHeight,
+      width: this.geometry.playerWidth,
+      height: this.geometry.playerHeight
     };
   }
 
@@ -111,7 +140,7 @@ export class BoardComponent {
 
 
   ngAfterViewInit() {
-    this.updateBoardSize();
+    this.updateBoardSizes();
     window.addEventListener('resize', this.resizeHandler);
     this.startGameLoop();
     this.startSpawner();
@@ -153,10 +182,10 @@ export class BoardComponent {
 
   updatePlayerPosition() {
      if (this.pressedKeys.has('ArrowLeft')) {
-        this.playerX = Math.max(0, this.playerX - this.step);
+        this.geometry.playerX = Math.max(0, this.geometry.playerX - this.geometry.step);
       }
       if (this.pressedKeys.has('ArrowRight')) {
-        this.playerX = Math.min(this.boardWidth - this.playerWidth, this.playerX + this.step);
+        this.geometry.playerX = Math.min(this.geometry.boardWidth - this.geometry.playerWidth, this.geometry.playerX + this.geometry.step);
       }
   }
 
@@ -164,7 +193,7 @@ export class BoardComponent {
     for (let item of this.fallingItems) {
       item.y += item.fallSpeed;
     }
-    this.fallingItems = this.fallingItems.filter(item => item.y < this.boardHeight);
+    this.fallingItems = this.fallingItems.filter(item => item.y < this.geometry.boardHeight);
   }
 
   startSpawner(){
@@ -181,7 +210,7 @@ export class BoardComponent {
     const itemWidth = 30; // example width
     const itemHeight = 30; // example height
     const fallSpeed = 2; // example fall speed
-    const xPosition = Math.random() * (this.boardWidth - itemWidth);
+    const xPosition = Math.random() * (this.geometry.boardWidth - itemWidth);
     const newItem: FallingItem = {
       x: xPosition,
       y: 0,
@@ -232,7 +261,7 @@ export class BoardComponent {
   resetBoard(){
     //reset all values
     this.fallingItems =[];
-    this.playerX = 100;
+    this.geometry.playerX = 100;
     this.spawnRate = 3000;
     this.pressedKeys.clear();
     
