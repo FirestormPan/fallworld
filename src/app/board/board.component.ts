@@ -212,10 +212,15 @@ export class BoardComponent {
   }
 
   increaseDifficulty() {
+  if (this.spawnIntervalId) {
     clearInterval(this.spawnIntervalId);
-    this.spawnRate *= 0.9;
-    this.startSpawner();
+    this.spawnIntervalId = undefined;
   }
+
+  this.spawnRate *= 0.9;
+  this.startSpawner();
+}
+
 
   endGame() {
     clearInterval(this.gameIntervalId);
