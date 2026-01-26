@@ -21,6 +21,7 @@
 
 
 .falling-item{
+  border: 2px solid black;
     position: absolute;
     top:0;
     border-radius: 10%;
@@ -34,10 +35,14 @@
   background-color: red;
 }
 
+
 .falling-item.golden {
   background-color: gold;
 }
 
+.falling-item.lose-life {
+  background-color: rgb(255, 0, 72);
+}
 .game-over{
   color: red;
   text-align: center;

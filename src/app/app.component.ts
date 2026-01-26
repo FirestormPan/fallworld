@@ -21,6 +21,8 @@ export class AppComponent implements OnInit, OnDestroy {
   score: number = 0;
   gameEnded: boolean = false;
   paused$ = this.gameService.gameisPaused$;
+
+  lives$ = this.gameService.lives$
   
   private destroy$ = new Subject<void>();
 

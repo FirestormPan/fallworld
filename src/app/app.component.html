@@ -3,6 +3,7 @@
     <h3 class="title">Fall world</h3>
     <span>High Score: {{ highScore }} </span>
     <span>Your Score: {{ score }}</span>
+    <span>Lives {{lives$ | async}}</span>
     
     <button [disabled]="!gameEnded" (click)="playAgain()">Play Again</button>
     <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ (paused$ | async) ? 'Resume' : 'Pause' }}</button>

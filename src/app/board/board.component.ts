@@ -76,7 +76,14 @@ export class BoardComponent {
       height: 30,
       fallSpeed: 4,
       onCollision: ()=>{for(let i=0; i<3; i++)this.gameService.scoreIncremenet()},
-    }
+    },
+    "lose-life":{
+      width: 30,
+      height: 30,
+      fallSpeed: 1,
+      onCollision: ()=>this.gameService.loseLife(),
+    },
+    
   }
 
   spawnRate = 3000; //will later be changed to variable difficulty
@@ -158,6 +165,16 @@ export class BoardComponent {
     this.gameService.resetTrigger$.subscribe(
       ()=> this.resetBoard()
     )
+
+    this.gameEnded$.subscribe( (ended)=>{
+      if(ended){
+        clearInterval(this.gameIntervalId);
+        clearInterval(this.spawnIntervalId);
+
+       this.gameIntervalId = undefined;
+       this.spawnIntervalId = undefined; 
+      }
+    })
 
     this.gameService.gameisPaused$.subscribe((isPaused)=>{
       if(isPaused){
@@ -283,9 +300,7 @@ export class BoardComponent {
 
 
   endGame() {
-    clearInterval(this.gameIntervalId);
-    clearInterval(this.spawnIntervalId);
-    
+
     this.gameService.endGame();
   }
 

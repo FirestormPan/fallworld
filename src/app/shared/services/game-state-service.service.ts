@@ -6,12 +6,15 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 })
 export class GameStateServiceService {
   private highScore: number = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')!) : 0;
+
   private scoreSubject = new BehaviorSubject<number>(0);
   score$: Observable<number> = this.scoreSubject.asObservable();
 
+  private livesSubject = new BehaviorSubject<number>(3);
+  lives$: Observable<number> = this.livesSubject.asObservable();
   
   private gameEndedSubject = new BehaviorSubject<boolean>(false);
-  gameEnded$: Observable<boolean> = this. gameEndedSubject.asObservable();
+  gameEnded$: Observable<boolean> = this.gameEndedSubject.asObservable();
   
   private restartSubject = new Subject<void>();
   resetTrigger$: Observable<void> = this.restartSubject.asObservable();
@@ -58,6 +61,14 @@ export class GameStateServiceService {
       this.gameisPausedSubject.next(false);
     }else{
       this.gameisPausedSubject.next(true);
+    }
+  }
+
+  loseLife():void{
+    this.livesSubject.next( this.livesSubject.value - 1)
+   
+    if(this.livesSubject.value==0){
+      this.endGame()
     }
   }
 
