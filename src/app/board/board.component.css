@@ -30,8 +30,12 @@
   background-color: green;
 }
 
-.falling-item.bad {
+.falling-item.death  {
   background-color: red;
+}
+
+.falling-item.golden {
+  background-color: gold;
 }
 
 .game-over{

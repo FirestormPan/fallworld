@@ -9,7 +9,16 @@ type FallingItem ={
   width: number;
   height: number;
   fallSpeed: number;
-  type: 'good' | 'bad';
+  type: string;
+  onCollision: ()=>void;
+}
+
+type ItemDetails = {
+  fallSpeed: number,
+  width:number,
+  height: number,
+  
+  onCollision: ()=>void 
 }
 
 interface BoardGeometry{
@@ -48,6 +57,27 @@ export class BoardComponent {
     playerX: 0,
     step: 0
   };
+
+  ITEM_DEFINITIONS: Record<string, ItemDetails> = {
+    "good":{
+      width: 30,
+      height: 30,
+      fallSpeed: 2,
+      onCollision: ()=>this.gameService.scoreIncremenet(),
+    },
+    "death":{
+      width: 30,
+      height: 30,
+      fallSpeed: 2,
+      onCollision: ()=>this.endGame(),
+    },
+    "golden":{
+      width: 30,
+      height: 30,
+      fallSpeed: 4,
+      onCollision: ()=>{for(let i=0; i<3; i++)this.gameService.scoreIncremenet()},
+    }
+  }
 
   spawnRate = 3000; //will later be changed to variable difficulty
 
@@ -176,17 +206,16 @@ export class BoardComponent {
   resumeBoard(){
     // Do not resume if the game has ended
     if (this.gameService.getGameEnded()) return;
-    
     this.boardisPaused = false;
   }
 
   updatePlayerPosition() {
-     if (this.pressedKeys.has('ArrowLeft')) {
-        this.geometry.playerX = Math.max(0, this.geometry.playerX - this.geometry.step);
-      }
-      if (this.pressedKeys.has('ArrowRight')) {
-        this.geometry.playerX = Math.min(this.geometry.boardWidth - this.geometry.playerWidth, this.geometry.playerX + this.geometry.step);
-      }
+    if (this.pressedKeys.has('ArrowLeft')) {
+      this.geometry.playerX = Math.max(0, this.geometry.playerX - this.geometry.step);
+    }
+    if (this.pressedKeys.has('ArrowRight')) {
+      this.geometry.playerX = Math.min(this.geometry.boardWidth - this.geometry.playerWidth, this.geometry.playerX + this.geometry.step);
+    }
   }
 
   updateItems() {
@@ -206,18 +235,21 @@ export class BoardComponent {
   }
 
   spawnItem() {
-    const itemType: 'good' | 'bad' = Math.random() < 0.7 ? 'good' : 'bad';
-    const itemWidth = 30; // example width
-    const itemHeight = 30; // example height
-    const fallSpeed = 2; // example fall speed
-    const xPosition = Math.random() * (this.geometry.boardWidth - itemWidth);
+    const ITEM_TYPES = Object.keys(this.ITEM_DEFINITIONS);
+
+    const randomType = ITEM_TYPES[Math.floor(Math.random() * ITEM_TYPES.length)]
+
+    let itemDetails = this.ITEM_DEFINITIONS[randomType];
+
+    const xPosition = Math.random() * (this.geometry.boardWidth - itemDetails.width);
     const newItem: FallingItem = {
       x: xPosition,
       y: 0,
-      fallSpeed: fallSpeed,
-      width: itemWidth,
-      height: itemHeight,
-      type: itemType
+      fallSpeed: itemDetails.fallSpeed,
+      width: itemDetails.width,
+      height: itemDetails.height,
+      type: randomType,
+      onCollision: itemDetails.onCollision
     };
     this.fallingItems.push(newItem);
   }
@@ -227,28 +259,27 @@ export class BoardComponent {
     this.fallingItems =this.fallingItems.filter( item=>{
       if(!this.isCollidingWithPlayer(item)){
         return true
-      }
-      if(item.type === 'good'){
-        this.gameService.scoreIncremenet();
+      }else{
+        item.onCollision();
+    
         if(this.gameService.getScore() % 3 === 0){
           this.increaseDifficulty()
         }
-      }else if(item.type === 'bad'){
-        this.endGame()
+        
+        return false
       }
-      return false
     });
   }
 
   increaseDifficulty() {
-  if (this.spawnIntervalId) {
-    clearInterval(this.spawnIntervalId);
-    this.spawnIntervalId = undefined;
-  }
+    if (this.spawnIntervalId) {
+      clearInterval(this.spawnIntervalId);
+      this.spawnIntervalId = undefined;
+    }
 
-  this.spawnRate *= 0.9;
-  this.startSpawner();
-}
+    this.spawnRate *= 0.9;
+    this.startSpawner();
+  }
 
 
   endGame() {
