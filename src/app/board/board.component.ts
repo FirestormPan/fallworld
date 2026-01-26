@@ -83,7 +83,7 @@ export class BoardComponent {
       fallSpeed: 1,
       onCollision: ()=>this.gameService.loseLife(),
     },
-    
+
   }
 
   spawnRate = 3000; //will later be changed to variable difficulty
@@ -131,6 +131,7 @@ export class BoardComponent {
   //TODO: might be buggy and somehow restart the game
   @HostListener('document:visibilitychange')
   onVisibilityChange() {
+    if(this.gameService.getGameEnded()) return;
     if (document.hidden) {
       this.pauseBoard();
     } else {
@@ -202,7 +203,7 @@ export class BoardComponent {
 
   startGameLoop() {
     if (this.gameIntervalId) return;
-
+    this.boardisPaused = false;
     this.gameIntervalId = window.setInterval(() => {
       if(this.boardisPaused) return;
       this.updatePlayerPosition();
@@ -300,7 +301,7 @@ export class BoardComponent {
 
 
   endGame() {
-
+    this.boardisPaused = true;
     this.gameService.endGame();
   }
 
