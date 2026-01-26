@@ -79,6 +79,7 @@ export class GameStateServiceService {
 
   resetGame():void{
     this.resetScore();
+    this.livesSubject.next(3)
     this.gameisPausedSubject.next(false);
     this.gameEndedSubject.next(false);
     this.restartSubject.next();
