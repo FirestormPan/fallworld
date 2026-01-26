@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class GameStateServiceService {
-  private highScore: number = 0;
+  private highScore: number = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')!) : 0;
   private scoreSubject = new BehaviorSubject<number>(0);
   score$: Observable<number> = this.scoreSubject.asObservable();
 
@@ -48,6 +48,7 @@ export class GameStateServiceService {
   setHighScore(): void {
     if (this.getScore() > this.highScore) {
       this.highScore = this.getScore();
+      localStorage.setItem('highScore', this.highScore.toString());
     }
   }
 
