@@ -1,0 +1,12 @@
+.title{
+    width: 100vw;
+    background-color: antiquewhite;
+    align-items: flex-start;
+    display: inline;
+    padding: 5px;
+}
+
+span{
+    margin-right: 3vw;
+    margin-left: 2vw;
+}

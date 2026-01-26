@@ -33,3 +33,17 @@
 .falling-item.bad {
   background-color: red;
 }
+
+.game-over{
+  color: red;
+  text-align: center;
+  font-family: cursive;
+  text-decoration: underline;
+}
+
+.game-paused{
+  text-align: center;
+  font-family: cursive;
+  text-decoration: underline;
+  color: blue;
+}

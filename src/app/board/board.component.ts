@@ -1,5 +1,6 @@
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { GameStateServiceService } from '../shared/services/game-state-service.service';
+import { AsyncPipe } from '@angular/common';
 
 
 type FallingItem ={
@@ -15,7 +16,7 @@ type FallingItem ={
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [],
+  imports: [AsyncPipe],
   templateUrl: './board.component.html',
   styleUrl: './board.component.css'
 })
@@ -44,9 +45,14 @@ export class BoardComponent {
 
   pressedKeys: Set<string> = new Set(); // Track pressed keys to declare direction in movement
 
+  gameEnded$ = this.gameService.gameEnded$;
+
+  boardisPaused: boolean = false;
+
   //====== Keyboard Input Handling ======
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
+    
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
     event.preventDefault();
     this.pressedKeys.add(event.key);
@@ -93,6 +99,14 @@ export class BoardComponent {
     this.gameService.resetTrigger$.subscribe(
       ()=> this.resetBoard()
     )
+
+    this.gameService.gameisPaused$.subscribe((isPaused)=>{
+      if(isPaused){
+        this.pauseBoard();
+      }else{
+        this.resumeBoard();
+      }
+    })
   }
 
 
@@ -111,13 +125,30 @@ export class BoardComponent {
 
 
   startGameLoop() {
+    if (this.gameIntervalId) return;
+
     this.gameIntervalId = window.setInterval(() => {
+      if(this.boardisPaused) return;
       this.updatePlayerPosition();
       this.updateItems();
 
       this.checkColisions();
 
     }, 20); // roughly 50fps
+  }
+
+
+  pauseBoard() {
+    if (this.gameService.getGameEnded()) return;
+
+    this.boardisPaused = true;
+  }
+
+  resumeBoard(){
+    // Do not resume if the game has ended
+    if (this.gameService.getGameEnded()) return;
+    
+    this.boardisPaused = false;
   }
 
   updatePlayerPosition() {
@@ -137,7 +168,10 @@ export class BoardComponent {
   }
 
   startSpawner(){
+    if (this.spawnIntervalId) return;
+
     this.spawnIntervalId = window.setInterval(() => {
+      if(this.boardisPaused) return;
       this.spawnItem();
     }, this.spawnRate);
   }
@@ -197,9 +231,12 @@ export class BoardComponent {
     this.spawnRate = 3000;
     this.pressedKeys.clear();
     
+    // Clear interval IDs so new ones can be created
+    this.gameIntervalId = undefined;
+    this.spawnIntervalId = undefined;
+    
     //restart the loops
     this.startGameLoop();
     this.startSpawner();
-
   }
 }

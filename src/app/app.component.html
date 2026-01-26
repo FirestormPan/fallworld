@@ -1,9 +1,13 @@
-<h3>Fall world</h3>
+<div >
+    
+    <h3 class="title">Fall world</h3>
+    <span>High Score: {{ highScore }} </span>
+    <span>Your Score: {{ score }}</span>
+    
+    <button [disabled]="!gameEnded" (click)="playAgain()">Play Again</button>
+    <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ (paused$ | async) ? 'Resume' : 'Pause' }}</button>
 
-<span>High Score: {{ highScore }} </span>
-<span>Your Score: {{ score }}</span>
-
-<button [disabled]="!gameEnded" (click)="playAgain()">Play Again</button>
+</div>
 
 
 <router-outlet />

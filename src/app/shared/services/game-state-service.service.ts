@@ -16,7 +16,7 @@ export class GameStateServiceService {
   private restartSubject = new Subject<void>();
   resetTrigger$: Observable<void> = this.restartSubject.asObservable();
   
-  private gameisPausedSubject = new Subject<boolean>();
+  private gameisPausedSubject = new BehaviorSubject<boolean>(false);
   gameisPaused$: Observable<boolean> = this.gameisPausedSubject.asObservable();
   
   constructor() {
@@ -27,6 +27,10 @@ export class GameStateServiceService {
 
   getScore(): number{
     return this.scoreSubject.value;
+  }
+
+  getGameEnded(): boolean {
+    return this.gameEndedSubject.value;
   }
 
   scoreIncremenet():void{
@@ -47,14 +51,24 @@ export class GameStateServiceService {
     }
   }
 
+
+  pauseOrResume():void{
+    if(this.gameisPausedSubject.value){
+      this.gameisPausedSubject.next(false);
+    }else{
+      this.gameisPausedSubject.next(true);
+    }
+  }
+
   endGame():void{
     this.setHighScore()
     this.gameEndedSubject.next(true);
   }
 
   resetGame():void{
-    // this.resetScore()
-    this.gameEndedSubject.next(false)
+    this.resetScore();
+    this.gameisPausedSubject.next(false);
+    this.gameEndedSubject.next(false);
     this.restartSubject.next();
   }
 
