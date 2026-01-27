@@ -13,11 +13,11 @@ import { takeUntil } from 'rxjs/operators';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
+  title = 'fallworld';
 
   constructor(private gameService: GameStateServiceService) {}
   
   highScore: number = this.gameService.getHighScore();
-  title = 'fallworld';
   score: number = 0;
   gameEnded: boolean = false;
   paused$ = this.gameService.gameisPaused$;
