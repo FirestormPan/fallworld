@@ -84,7 +84,7 @@ export class BoardComponent {
       width: 30,
       height: 30,
       fallSpeed: 2,
-      spawnFrequency: 115,
+      spawnFrequency: 215,
       onCollision: ()=>this.endGame(),
     },
     "golden":{
@@ -187,6 +187,7 @@ export class BoardComponent {
   
     this.gameEnded$.subscribe( (ended)=>{
       if(ended){
+        this.pauseBoard()
         clearInterval(this.gameIntervalId);
         clearInterval(this.spawnIntervalId);
 
@@ -223,7 +224,7 @@ export class BoardComponent {
 
   startGameLoop() {
     if (this.gameIntervalId) return;
-    this.boardisPaused = false;
+
     this.gameIntervalId = window.setInterval(() => {
       if(this.boardisPaused) return;
       this.updatePlayerPosition();
@@ -236,15 +237,13 @@ export class BoardComponent {
 
 
   pauseBoard() {
-    if (this.gameService.getGameEnded()) return;
-
     this.boardisPaused = true;
   }
 
   resumeBoard(){
     // Do not resume if the game has ended
-    if (this.gameService.getGameEnded()) return;
-    this.boardisPaused = false;
+    if (!this.gameService.getGameEnded())
+     this.boardisPaused = false;
   }
 
   updatePlayerPosition() {
@@ -297,8 +296,7 @@ export class BoardComponent {
     let indicator= Math.random() * this.FREQUENCY_SUM
     
     // iterate through frequencies untill value is within bounds
-    
-
+    //pointer shows which part of the line we examine whether the random indicator is in it
     let pointer = 0;
     for(let [index, fr] of this.FREQUENCY_TABLE.entries()){
 
@@ -340,7 +338,6 @@ export class BoardComponent {
 
 
   endGame() {
-    this.boardisPaused = true;
     this.gameService.endGame();
   }
 
@@ -350,6 +347,9 @@ export class BoardComponent {
     this.geometry.playerX = 100;
     this.spawnRate = 3000;
     this.pressedKeys.clear();
+
+    clearInterval(this.gameIntervalId )
+    clearInterval(this.spawnIntervalId)
     
     // Clear interval IDs so new ones can be created
     this.gameIntervalId = undefined;
@@ -358,5 +358,7 @@ export class BoardComponent {
     //restart the loops
     this.startGameLoop();
     this.startSpawner();
+    
+    this.resumeBoard()
   }
 }
