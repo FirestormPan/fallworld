@@ -7,18 +7,19 @@
         <h1 class="game-paused">Game Paused!</h1>
     }
 
-    <div #player class="player" [style.left.px]="geometry.playerX"></div>
-
-    <div>
-        @for (item of fallingItems; track item){
-            <div class="falling-item"
-                [class] = "item.type"
-                [style.left.px]="item.x"
-                [style.top.px]="item.y"
-                [style.width.px]="item.width"
-                [style.height.px]="item.height">
-            </div>
-        }    
+    <div #player class="player" [style.left.px]="geometry.playerX">
+        <div class="player-image"></div>
     </div>
+
+    @for (item of fallingItems; track item){
+        <div class="falling-item"
+        [class] = "item.type"
+        [style.left.px]="item.x"
+        [style.top.px]="item.y"
+        [style.width.px]="item.width"
+        [style.height.px]="item.height">
+        </div>
+    }    
+
 
 </div>

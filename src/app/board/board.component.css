@@ -13,11 +13,37 @@
 .player{
     position: absolute; /*Important for movement*/
     bottom: 0;
-    height: 10vh;
+    height: 12vh;
     width: 5vw;
-    background-color: #3498db;
-    border-radius: 50%;
+    min-width: 40px;
+    min-height: 50px;
+    background-color: #4cecfeb7;
+    border-radius: 50% 50% 30% 50%;
+    overflow: visible;
 }
+
+.player-image {
+  position: absolute;
+
+  /* anchor to bottom center of hitbox */
+  bottom: 0;
+  left: 60%;
+  transform: translateX(-50%);
+
+  /* visual size (can exceed hitbox) */
+  height: 20vh;
+  width: 10vw;
+  min-width: 50px;
+  min-height: 60px;
+
+  background-image: url('/assets/images/sworupwo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+
+  pointer-events: none; /* important for clean input */
+}
+
 
 
 .falling-item{
