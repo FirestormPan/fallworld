@@ -16,15 +16,16 @@ export class GameStateServiceService {
   private gameEndedSubject = new BehaviorSubject<boolean>(false);
   gameEnded$: Observable<boolean> = this.gameEndedSubject.asObservable();
   
-  private restartSubject = new Subject<void>();
-  resetTrigger$: Observable<void> = this.restartSubject.asObservable();
-  
   private gameisPausedSubject = new BehaviorSubject<boolean>(false);
   gameisPaused$: Observable<boolean> = this.gameisPausedSubject.asObservable();
   
   constructor() {
-    this.resetTrigger$.subscribe(
-      ()=> this.resetScore()
+    this.gameEnded$.subscribe(
+      (gameEnded)=>{
+        if(!gameEnded){
+          this.resetScore()
+        }
+      }
     );
   }
 
@@ -82,7 +83,6 @@ export class GameStateServiceService {
     this.livesSubject.next(3)
     this.gameisPausedSubject.next(false);
     this.gameEndedSubject.next(false);
-    this.restartSubject.next();
   }
 
 }

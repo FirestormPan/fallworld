@@ -84,7 +84,7 @@ export class BoardComponent {
       width: 30,
       height: 30,
       fallSpeed: 2,
-      spawnFrequency: 15,
+      spawnFrequency: 115,
       onCollision: ()=>this.endGame(),
     },
     "golden":{
@@ -184,10 +184,7 @@ export class BoardComponent {
   }
 
   ngOnInit() {
-    this.gameService.resetTrigger$.subscribe(
-      ()=> this.resetBoard()
-    )
-
+  
     this.gameEnded$.subscribe( (ended)=>{
       if(ended){
         clearInterval(this.gameIntervalId);
@@ -195,6 +192,8 @@ export class BoardComponent {
 
        this.gameIntervalId = undefined;
        this.spawnIntervalId = undefined; 
+      }else{
+        this.resetBoard()
       }
     })
 
