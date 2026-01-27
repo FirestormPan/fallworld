@@ -17,7 +17,7 @@ type ItemDetails = {
   fallSpeed: number,
   width:number,
   height: number,
-  
+  spawnFrequency: number,
   onCollision: ()=>void 
 }
 
@@ -39,7 +39,21 @@ interface BoardGeometry{
 })
 export class BoardComponent {
 
-  constructor(private gameService: GameStateServiceService) {}
+  constructor(private gameService: GameStateServiceService) {
+
+    // calculate a table with all frequencies and the sum of frequencies
+    const items = Object.values(this.ITEM_DEFINITIONS); 
+    // create frequencies table
+    this.FREQUENCY_TABLE = items.map(
+      (item) =>{ return item.spawnFrequency}
+    )
+    // Calculate the sum of all frequencies
+    this.FREQUENCY_SUM = items.reduce(
+      (sum, item: ItemDetails)=> {
+        return sum += item.spawnFrequency
+      }, 0
+    )
+  }
 
   private gameIntervalId?: number;
   private spawnIntervalId?: number;
@@ -63,28 +77,35 @@ export class BoardComponent {
       width: 30,
       height: 30,
       fallSpeed: 2,
+      spawnFrequency: 100,
       onCollision: ()=>this.gameService.scoreIncremenet(),
     },
     "death":{
       width: 30,
       height: 30,
       fallSpeed: 2,
+      spawnFrequency: 15,
       onCollision: ()=>this.endGame(),
     },
     "golden":{
       width: 30,
       height: 30,
       fallSpeed: 4,
+      spawnFrequency: 10,
       onCollision: ()=>{for(let i=0; i<3; i++)this.gameService.scoreIncremenet()},
     },
     "lose-life":{
       width: 30,
       height: 30,
       fallSpeed: 1,
+      spawnFrequency: 50,
       onCollision: ()=>this.gameService.loseLife(),
     },
 
   }
+
+  FREQUENCY_SUM: number;
+  FREQUENCY_TABLE;
 
   spawnRate = 3000; //will later be changed to variable difficulty
 
@@ -129,15 +150,15 @@ export class BoardComponent {
 
   //prevent the spawner from creating objects while the loop cannot move them (browser thing)
   //TODO: might be buggy and somehow restart the game
-  @HostListener('document:visibilitychange')
-  onVisibilityChange() {
-    if(this.gameService.getGameEnded()) return;
-    if (document.hidden) {
-      this.pauseBoard();
-    } else {
-      this.resumeBoard();
-    }
-  }
+  // @HostListener('document:visibilitychange')
+  // onVisibilityChange() {
+  //   if(this.gameService.getGameEnded()) return;
+  //   if (document.hidden) {
+  //     this.pauseBoard();
+  //   } else {
+  //     this.resumeBoard();
+  //   }
+  // }
 
   //function to attach and detach resize event listener
   private resizeHandler = () => this.updateBoardSizes();
@@ -253,9 +274,7 @@ export class BoardComponent {
   }
 
   spawnItem() {
-    const ITEM_TYPES = Object.keys(this.ITEM_DEFINITIONS);
-
-    const randomType = ITEM_TYPES[Math.floor(Math.random() * ITEM_TYPES.length)]
+    const randomType = this.pickRandomItemType();
 
     let itemDetails = this.ITEM_DEFINITIONS[randomType];
 
@@ -272,6 +291,27 @@ export class BoardComponent {
     this.fallingItems.push(newItem);
   }
 
+  pickRandomItemType(){
+    const ITEM_TYPES = Object.keys(this.ITEM_DEFINITIONS);
+
+    //get a random value: 0 - SUMofFrequencies
+    let indicator= Math.random() * this.FREQUENCY_SUM
+    
+    // iterate through frequencies untill value is within bounds
+    
+
+    let pointer = 0;
+    for(let [index, fr] of this.FREQUENCY_TABLE.entries()){
+
+      pointer += fr
+      if(indicator<= pointer){        
+        return ITEM_TYPES[index];
+      }
+    }
+
+    console.log("we should not be here")
+    return "good";
+  }
 
   checkColisions(){
     this.fallingItems =this.fallingItems.filter( item=>{
