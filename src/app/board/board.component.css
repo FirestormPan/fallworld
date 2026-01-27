@@ -21,7 +21,6 @@
 
 
 .falling-item{
-  border: 2px solid black;
     position: absolute;
     top:0;
     border-radius: 10%;
@@ -33,6 +32,9 @@
 
 .falling-item.death  {
   background-color: red;
+  box-shadow: 0 0 30px 10px rgba(255, 0, 0, 0.7);
+
+
 }
 
 

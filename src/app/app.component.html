@@ -10,8 +10,8 @@
     <span></span>
     <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ (paused$ | async) ? 'Resume' : 'Pause' }}</button>
     
-    <span class="lives">Life: {{ '❤'.repeat((lives$ | async) ?? 0) || "Sadly you are NOT undead" }}</span>
+    <b class="lives">Life: {{ '❤'.repeat((lives$ | async) ?? 0) || "Sadly you are NOT undead" }}</b>
 </div>
 
-
+<br>
 <router-outlet />
