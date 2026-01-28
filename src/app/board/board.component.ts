@@ -40,7 +40,6 @@ interface BoardGeometry{
 export class BoardComponent {
 
   constructor(private gameService: GameStateServiceService) {
-
     // calculate a table with all frequencies and the sum of frequencies
     const items = Object.values(this.ITEM_DEFINITIONS); 
     // create frequencies table
@@ -78,13 +77,13 @@ export class BoardComponent {
       height: 30,
       fallSpeed: 2,
       spawnFrequency: 100,
-      onCollision: ()=>this.gameService.scoreIncremenet(),
+      onCollision: ()=>this.gameService.scoreIncremenet(1),
     },
     "death":{
       width: 30,
       height: 30,
       fallSpeed: 2,
-      spawnFrequency: 215,
+      spawnFrequency: 15,
       onCollision: ()=>this.endGame(),
     },
     "golden":{
@@ -92,22 +91,30 @@ export class BoardComponent {
       height: 30,
       fallSpeed: 4,
       spawnFrequency: 10,
-      onCollision: ()=>{for(let i=0; i<3; i++)this.gameService.scoreIncremenet()},
+      onCollision: ()=>{this.gameService.scoreIncremenet(5)},
     },
     "lose-life":{
       width: 30,
       height: 30,
       fallSpeed: 1,
       spawnFrequency: 50,
-      onCollision: ()=>this.gameService.loseLife(),
+      onCollision: ()=>this.gameService.gainLife(-1),
     },
+    "gain-life":{
+      width: 30,
+      height: 30,
+      fallSpeed: 2,
+      spawnFrequency: 11115,
+      onCollision: ()=>this.gameService.gainLife(+1),
+    }
 
   }
 
+  FREQUENCY_TABLE:number[];
   FREQUENCY_SUM: number;
-  FREQUENCY_TABLE;
 
   spawnRate = 3000; //will later be changed to variable difficulty
+  fallingMultiplier:number = 1;
 
   fallingItems: FallingItem[] = [];
 
@@ -257,8 +264,9 @@ export class BoardComponent {
 
   updateItems() {
     for (let item of this.fallingItems) {
-      item.y += item.fallSpeed;
+      item.y += item.fallSpeed * this.fallingMultiplier;
     }
+    //remove the leaving ones
     this.fallingItems = this.fallingItems.filter(item => item.y < this.geometry.boardHeight);
   }
 

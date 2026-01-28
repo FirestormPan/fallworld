@@ -59,18 +59,36 @@
 .falling-item.death  {
   background-color: red;
   box-shadow: 0 0 30px 10px rgba(255, 0, 0, 0.7);
-
+  background-image: url("/assets/images/skull-solid.svg");
+  background-size: 60%;
+  background-repeat: no-repeat;
+  background-position: center;
 
 }
 
 
 .falling-item.golden {
   background-color: gold;
+  box-shadow: 0px -5px 10px 10px #eedb3580;
+  background-image: url("/assets/images/star.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+
 }
 
 .falling-item.lose-life {
   background-color: rgb(255, 0, 72);
+  background-image: url("/assets/images/heart_broken.svg");
+  background-repeat: no-repeat;
+  background-position: center;
 }
+.falling-item.gain-life{
+  background-color: rgb(255, 0, 247);
+  background-image: url("/assets/images/heart-solid-full.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .game-over{
   color: red;
   text-align: center;

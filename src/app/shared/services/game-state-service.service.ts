@@ -37,8 +37,8 @@ export class GameStateServiceService {
     return this.gameEndedSubject.value;
   }
 
-  scoreIncremenet():void{
-    this.scoreSubject.next(this.scoreSubject.value + 1);
+  scoreIncremenet(value: number):void{
+    this.scoreSubject.next(this.scoreSubject.value + value);
   }
 
   resetScore():void{
@@ -65,8 +65,8 @@ export class GameStateServiceService {
     }
   }
 
-  loseLife():void{
-    this.livesSubject.next( this.livesSubject.value - 1)
+  gainLife(value: number):void{
+    this.livesSubject.next( this.livesSubject.value + value)
    
     if(this.livesSubject.value==0){
       this.endGame()
