@@ -68,7 +68,7 @@ export class GameStateServiceService {
   gainLife(value: number):void{
     this.livesSubject.next( this.livesSubject.value + value)
    
-    if(this.livesSubject.value==0){
+    if(this.livesSubject.value ===0){
       this.endGame()
     }
   }

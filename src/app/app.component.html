@@ -1,6 +1,20 @@
 <div class="head">
     
     <h3 class="title">Fall world</h3>
+
+    <div class="dropdown"> <b>How to play</b>
+        <div class="dropdown-content">
+        <b> Move using the keyboard arrows</b>
+        <p>Hitbox is the blue aura</p>
+        <p>Red Skull kills you instantly</p>
+        <p>Broken Heart takes away a life</p>
+        <p>Green gives a point</p>
+        <p>Gold star gives 5 points</p>
+        <p>Purple heart gives a life</p>
+        </div>
+    </div>
+
+
     <span>High Score: {{ highScore }} </span>
     <span>Your Score: {{ score }}</span>
     
@@ -11,6 +25,10 @@
     <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ (paused$ | async) ? 'Resume' : 'Pause' }}</button>
     
     <b class="lives">Life: {{ '❤'.repeat((lives$ | async) ?? 0) || "Sadly you are NOT undead" }}</b>
+
+    
+
+    
 </div>
 
 <br>

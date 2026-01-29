@@ -104,7 +104,7 @@ export class BoardComponent {
       width: 30,
       height: 30,
       fallSpeed: 2,
-      spawnFrequency: 11115,
+      spawnFrequency: 1,
       onCollision: ()=>this.gameService.gainLife(+1),
     }
 
@@ -155,17 +155,17 @@ export class BoardComponent {
     this.pressedKeys.delete(event.key);
   }
 
-  //prevent the spawner from creating objects while the loop cannot move them (browser thing)
-  //TODO: might be buggy and somehow restart the game
-  // @HostListener('document:visibilitychange')
-  // onVisibilityChange() {
-  //   if(this.gameService.getGameEnded()) return;
-  //   if (document.hidden) {
-  //     this.pauseBoard();
-  //   } else {
-  //     this.resumeBoard();
-  //   }
-  // }
+  // prevent the spawner from creating objects while the loop cannot move them (browser thing)
+  // TODO: might be buggy and somehow restart the game
+  @HostListener('document:visibilitychange')
+  onVisibilityChange() {
+    if(this.gameService.getGameEnded()) return;
+    if (document.hidden) {
+      this.pauseBoard();
+    } else {
+      this.resumeBoard();
+    }
+  }
 
   //function to attach and detach resize event listener
   private resizeHandler = () => this.updateBoardSizes();
@@ -324,8 +324,9 @@ export class BoardComponent {
         return true
       }else{
         item.onCollision();
-    
-        if(this.gameService.getScore() % 3 === 0){
+
+        if(this.gameService.getScore() % 4 === 0 ){
+
           this.increaseDifficulty()
         }
         
