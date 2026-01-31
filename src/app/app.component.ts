@@ -8,7 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AsyncPipe],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -22,7 +22,7 @@ export class AppComponent implements OnInit, OnDestroy {
   gameEnded: boolean = false;
   paused = this.gameService.gameisPaused;
 
-  lives$ = this.gameService.lives$
+  lives = this.gameService.lives
   
   private destroy$ = new Subject<void>();
 

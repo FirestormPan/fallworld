@@ -24,7 +24,7 @@
     <span></span>
     <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ paused() ? 'Resume' : 'Pause' }}</button>
     
-    <b class="lives">Life: {{ '❤'.repeat((lives$ | async) ?? 0) || "Sadly you are NOT undead" }}</b>
+    <b class="lives">Life: {{ '❤'.repeat(lives()) || "Sadly you are NOT undead" }}</b>
 
     
 

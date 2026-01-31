@@ -9,13 +9,11 @@ export class GameStateServiceService {
 
   score = signal(0)
 
-  private livesSubject = new BehaviorSubject<number>(3);
-  lives$: Observable<number> = this.livesSubject.asObservable();
+  private _lives = signal(3); 
+  readonly lives = this._lives;
   
   private gameEndedSubject = new BehaviorSubject<boolean>(false);
   gameEnded$: Observable<boolean> = this.gameEndedSubject.asObservable();
-  
-  
 
   public  gameisPaused = signal(false)
   
@@ -66,9 +64,9 @@ export class GameStateServiceService {
   }
 
   gainLife(value: number):void{
-    this.livesSubject.next( this.livesSubject.value + value)
+    this._lives.update( lives => lives + value)
    
-    if(this.livesSubject.value ===0){
+    if(this._lives() === 0){
       this.endGame()
     }
   }
@@ -80,7 +78,7 @@ export class GameStateServiceService {
 
   resetGame():void{
     this.resetScore();
-    this.livesSubject.next(3)
+    this._lives.set(3)
 
     this.gameEndedSubject.next(false);
   }
