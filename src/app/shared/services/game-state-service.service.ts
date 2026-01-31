@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 @Injectable({
@@ -7,8 +7,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 export class GameStateServiceService {
   private highScore: number = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')!) : 0;
 
-  private scoreSubject = new BehaviorSubject<number>(0);
-  score$: Observable<number> = this.scoreSubject.asObservable();
+  score = signal(0)
 
   private livesSubject = new BehaviorSubject<number>(3);
   lives$: Observable<number> = this.livesSubject.asObservable();
@@ -16,8 +15,9 @@ export class GameStateServiceService {
   private gameEndedSubject = new BehaviorSubject<boolean>(false);
   gameEnded$: Observable<boolean> = this.gameEndedSubject.asObservable();
   
-  private gameisPausedSubject = new BehaviorSubject<boolean>(false);
-  gameisPaused$: Observable<boolean> = this.gameisPausedSubject.asObservable();
+  
+
+  public  gameisPaused = signal(false)
   
   constructor() {
     this.gameEnded$.subscribe(
@@ -30,7 +30,7 @@ export class GameStateServiceService {
   }
 
   getScore(): number{
-    return this.scoreSubject.value;
+    return this.score()
   }
 
   getGameEnded(): boolean {
@@ -38,11 +38,11 @@ export class GameStateServiceService {
   }
 
   scoreIncremenet(value: number):void{
-    this.scoreSubject.next(this.scoreSubject.value + value);
+    this.score.update( score => score + value)
   }
 
   resetScore():void{
-    this.scoreSubject.next(0)
+    this.score.set(0)
   }
 
   getHighScore(): number {
@@ -58,10 +58,10 @@ export class GameStateServiceService {
 
 
   pauseOrResume():void{
-    if(this.gameisPausedSubject.value){
-      this.gameisPausedSubject.next(false);
+    if(this.gameisPaused()){
+      this.gameisPaused.set(false);
     }else{
-      this.gameisPausedSubject.next(true);
+      this.gameisPaused.set(true);
     }
   }
 

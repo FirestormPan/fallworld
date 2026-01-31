@@ -122,7 +122,7 @@ export class BoardComponent {
 
   gameEnded$ = this.gameService.gameEnded$;
 
-  boardisPaused: boolean = false;
+  boardisPaused = this.gameService.gameisPaused
 
   // ========Create the board based on the sizes of the screeen=======
   updateBoardSizes() {
@@ -142,7 +142,7 @@ export class BoardComponent {
   //====== Keyboard Input Handling ======
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    if(this.boardisPaused) return;
+    if(this.boardisPaused()) return;
     
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
     event.preventDefault();
@@ -162,9 +162,10 @@ export class BoardComponent {
     if(this.gameService.getGameEnded()) return;
     if (document.hidden) {
       this.pauseBoard();
-    } else {
-      this.resumeBoard();
     }
+    //  else { //causes logical problams that would require a lot of changes for minimal gain   
+    //   this.resumeBoard();
+    // }
   }
 
   //function to attach and detach resize event listener
@@ -205,13 +206,6 @@ export class BoardComponent {
       }
     })
 
-    this.gameService.gameisPaused$.subscribe((isPaused)=>{
-      if(isPaused){
-        this.pauseBoard();
-      }else{
-        this.resumeBoard();
-      }
-    })
   }
 
 
@@ -233,7 +227,7 @@ export class BoardComponent {
     if (this.gameIntervalId) return;
 
     this.gameIntervalId = window.setInterval(() => {
-      if(this.boardisPaused) return;
+      if(this.boardisPaused()) return;
       this.updatePlayerPosition();
       this.updateItems();
 
@@ -244,13 +238,13 @@ export class BoardComponent {
 
 
   pauseBoard() {
-    this.boardisPaused = true;
+    this.boardisPaused.set(true);
   }
 
   resumeBoard(){
     // Do not resume if the game has ended
     if (!this.gameService.getGameEnded())
-     this.boardisPaused = false;
+     this.gameService.gameisPaused.set(false);
   }
 
   updatePlayerPosition() {
@@ -274,7 +268,7 @@ export class BoardComponent {
     if (this.spawnIntervalId) return;
 
     this.spawnIntervalId = window.setInterval(() => {
-      if(this.boardisPaused) return;
+      if(this.boardisPaused()) return;
       this.spawnItem();
     }, this.spawnRate);
   }

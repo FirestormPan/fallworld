@@ -3,7 +3,7 @@
     <!-- Stopped game messages -->
     @if(gameEnded$ | async){
         <h1 class="game-over">Game Over!</h1>
-    }@else if(boardisPaused){
+    }@else if(boardisPaused()){
         <h1 class="game-paused">Game Paused!</h1>
     }
 

@@ -16,13 +16,13 @@
 
 
     <span>High Score: {{ highScore }} </span>
-    <span>Your Score: {{ score }}</span>
+    <span>Your Score: {{ score() }}</span>
     
     
     
     <button [disabled]="!gameEnded" (click)="playAgain()">Play Again</button>
     <span></span>
-    <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ (paused$ | async) ? 'Resume' : 'Pause' }}</button>
+    <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ paused() ? 'Resume' : 'Pause' }}</button>
     
     <b class="lives">Life: {{ '❤'.repeat((lives$ | async) ?? 0) || "Sadly you are NOT undead" }}</b>
 
