@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, Signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { GameStateServiceService } from './shared/services/game-state-service.service';
-import { AsyncPipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

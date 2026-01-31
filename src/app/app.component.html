@@ -25,10 +25,6 @@
     <button [disabled]="gameEnded" (click)="pauseOrResume()">{{ paused() ? 'Resume' : 'Pause' }}</button>
     
     <b class="lives">Life: {{ '❤'.repeat(lives()) || "Sadly you are NOT undead" }}</b>
-
-    
-
-    
 </div>
 
 <br>

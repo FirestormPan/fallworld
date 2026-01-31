@@ -2,9 +2,9 @@
 
     <!-- Stopped game messages -->
     @if(gameEnded$ | async){
-        <h1 class="game-over">Game Over!</h1>
+        <h1 class="message game-over">Game Over!</h1>
     }@else if(boardisPaused()){
-        <h1 class="game-paused">Game Paused!</h1>
+        <h1 class="message game-paused">Game Paused!</h1>
     }
 
     <div #player class="player" [style.left.px]="geometry.playerX">
