@@ -6,7 +6,10 @@
     width: 95vw;
     min-width: 500px;
     min-height: 400px;
-    background-color: #f0f0f0;
+    background-color: #f0f0f045;
+    background-image: url("/assets/images/elisavetkoritsimou.jpg");
+  
+    background-size: contain;
     border-bottom: black 4px solid;
 }
 
@@ -53,7 +56,7 @@
 }
 
 .falling-item.good {
-  background-color: green;
+  background-color: rgb(0, 0, 243);
 }
 
 .falling-item.death  {
@@ -87,6 +90,10 @@
   background-image: url("/assets/images/heart-solid-full.svg");
   background-repeat: no-repeat;
   background-position: center;
+}
+
+.falling-item.remove-borken-hearts{
+  background-color: rgb(233, 121, 230);
 }
 
 
