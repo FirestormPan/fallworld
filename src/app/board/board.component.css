@@ -8,8 +8,8 @@
     min-height: 400px;
     background-color: #f0f0f045;
     background-image: url("/assets/images/elisavetkoritsimou.jpg");
-  
-    background-size: contain;
+    background-repeat: no-repeat;
+    background-size: cover;
     border-bottom: black 4px solid;
 }
 
@@ -92,8 +92,11 @@
   background-position: center;
 }
 
-.falling-item.remove-borken-hearts{
+.falling-item.remove-lose-life{
   background-color: rgb(233, 121, 230);
+  background-image:  url("/assets/images/block.svg"), url("/assets/images/heart_broken.svg");
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 

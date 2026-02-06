@@ -10,6 +10,7 @@ type FallingItem ={
   height: number;
   fallSpeed: number;
   type: string;
+  shouldBeDestroyed: boolean;
   onCollision: ()=>void;
 }
 
@@ -84,7 +85,7 @@ export class BoardComponent {
       height: 30,
       fallSpeed: 2,
       spawnFrequency: 15,
-      onCollision: ()=>this.endGame(),
+      onCollision: ()=>this.gameService.gainLife( - this.gameService.lives()), //removes all lives
     },
     "golden":{
       width: 30,
@@ -105,10 +106,23 @@ export class BoardComponent {
       height: 30,
       fallSpeed: 2,
       spawnFrequency: 1,
-      onCollision: ()=>this.gameService.gainLife(+1),
+      onCollision: ()=>this.gameService.gainLife(+1)
+    },
+    "remove-lose-life":{ //removes all lose-life icons
+      width: 30,
+      height: 30,
+      fallSpeed: 2,
+      spawnFrequency: 500,
+      onCollision: ()=>{
+        this.fallingItems.forEach(
+          item=>{ if(item.type === "lose-life") item.shouldBeDestroyed = true 
+          }
+        )
+      }
     }
 
-  }
+
+  };
 
   FREQUENCY_TABLE:number[];
   FREQUENCY_SUM: number;
@@ -156,14 +170,13 @@ export class BoardComponent {
   }
 
   // prevent the spawner from creating objects while the loop cannot move them (browser thing)
-  // TODO: might be buggy and somehow restart the game
   @HostListener('document:visibilitychange')
   onVisibilityChange() {
     if(this.gameService.getGameEnded()) return;
     if (document.hidden) {
       this.pauseBoard();
     }
-    //  else { //causes logical problams that would require a lot of changes for minimal gain   
+    //  else { //causes logical problems(restarts the board even when the user has declared pause by button) that would require a lot of changes for minimal gain   
     //   this.resumeBoard();
     // }
   }
@@ -229,8 +242,8 @@ export class BoardComponent {
     this.gameIntervalId = window.setInterval(() => {
       if(this.boardisPaused()) return;
       this.updatePlayerPosition();
-      this.updateItems();
-
+      this.destroyItems();
+      this.updateItemPositions();
       this.checkColisions();
 
     }, 20); // roughly 50fps
@@ -256,12 +269,16 @@ export class BoardComponent {
     }
   }
 
-  updateItems() {
+  destroyItems(){ 
+    this.fallingItems = this.fallingItems.filter((item) =>{
+      return (item.y < this.geometry.boardHeight) && !item.shouldBeDestroyed;
+    })
+  }
+
+  updateItemPositions() {
     for (let item of this.fallingItems) {
       item.y += item.fallSpeed * this.fallingMultiplier;
     }
-    //remove the leaving ones
-    this.fallingItems = this.fallingItems.filter(item => item.y < this.geometry.boardHeight);
   }
 
   startSpawner(){
@@ -286,6 +303,7 @@ export class BoardComponent {
       width: itemDetails.width,
       height: itemDetails.height,
       type: randomType,
+      shouldBeDestroyed: false,
       onCollision: itemDetails.onCollision
     };
     this.fallingItems.push(newItem);
@@ -337,11 +355,6 @@ export class BoardComponent {
 
     this.spawnRate *= 0.9;
     this.startSpawner();
-  }
-
-
-  endGame() {
-    this.gameService.endGame();
   }
 
   resetBoard(){
