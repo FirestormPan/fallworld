@@ -10,38 +10,25 @@ export class GameStateServiceService {
   score = signal(0)
 
   private _lives = signal(3); 
-  readonly lives = this._lives;
-  
-  private gameEndedSubject = new BehaviorSubject<boolean>(false);
-  gameEnded$: Observable<boolean> = this.gameEndedSubject.asObservable();
+  readonly lives = this._lives.asReadonly();
+
+  difficultyLevel = signal(1);
+
+
+  gameEnded = signal(false)
 
   public  gameisPaused = signal(false)
   
-  constructor() {
-    this.gameEnded$.subscribe(
-      (gameEnded)=>{
-        if(!gameEnded){
-          this.resetScore()
-        }
-      }
-    );
-  }
+  constructor() {}
 
   getScore(): number{
     return this.score()
-  }
-
-  getGameEnded(): boolean {
-    return this.gameEndedSubject.value;
   }
 
   scoreIncremenet(value: number):void{
     this.score.update( score => score + value)
   }
 
-  resetScore():void{
-    this.score.set(0)
-  }
 
   getHighScore(): number {
     return this.highScore;
@@ -54,6 +41,10 @@ export class GameStateServiceService {
     }
   }
 
+  increaseDifficulty(): void{
+    this.difficultyLevel.update( value => value +1)
+  }
+
 
   pauseOrResume():void{
     if(this.gameisPaused()){
@@ -64,23 +55,23 @@ export class GameStateServiceService {
   }
 
   gainLife(value: number):void{
-    this._lives.update( lives => lives + value)
+    this._lives.update( _lives => _lives + value)
    
-    if(this._lives() === 0){
+    if(this._lives() <= 0){
       this.endGame()
     }
   }
 
   endGame():void{
     this.setHighScore()
-    this.gameEndedSubject.next(true);
+    this.gameEnded.set(true);
   }
 
   resetGame():void{
-    this.resetScore();
+    this.score.set(0)
     this._lives.set(3)
 
-    this.gameEndedSubject.next(false);
+    this.gameEnded.set(false);
   }
 
 }

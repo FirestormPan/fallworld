@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { GameStateServiceService } from '../shared/services/game-state-service.service';
 import { AsyncPipe } from '@angular/common';
 
@@ -34,7 +34,7 @@ interface BoardGeometry{
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [],
   templateUrl: './board.component.html',
   styleUrl: './board.component.css'
 })
@@ -53,6 +53,25 @@ export class BoardComponent {
         return sum += item.spawnFrequency
       }, 0
     )
+
+    
+    effect(
+      ()=>{
+        const ended = this.gameEnded()
+
+        if(ended){
+          this.pauseBoard()
+          clearInterval(this.gameIntervalId);
+          clearInterval(this.spawnIntervalId);
+
+          this.gameIntervalId = undefined;
+          this.spawnIntervalId = undefined; 
+        }else{
+          this.resetBoard()
+        }
+      }, {allowSignalWrites: true}
+    )
+
   }
 
   private gameIntervalId?: number;
@@ -77,7 +96,7 @@ export class BoardComponent {
       width: 30,
       height: 30,
       fallSpeed: 2,
-      spawnFrequency: 100,
+      spawnFrequency: 110,
       onCollision: ()=>this.gameService.scoreIncremenet(1),
     },
     "death":{
@@ -112,31 +131,34 @@ export class BoardComponent {
       width: 30,
       height: 30,
       fallSpeed: 2,
-      spawnFrequency: 500,
+      spawnFrequency: 5,
       onCollision: ()=>{
         this.fallingItems.forEach(
-          item=>{ if(item.type === "lose-life") item.shouldBeDestroyed = true 
-          }
+          item=>{ if(item.type === "lose-life") item.shouldBeDestroyed = true }
         )
       }
-    }
+    },
 
+    //Todo: 
+    // slow down falling items & spawnrate for a little bit
+    // stop spawning for a bit
 
   };
 
   FREQUENCY_TABLE:number[];
   FREQUENCY_SUM: number;
 
-  spawnRate = 3000; //will later be changed to variable difficulty
+  //will later be changed to variable difficulty
+  spawnRate = 3000
   fallingMultiplier:number = 1;
 
   fallingItems: FallingItem[] = [];
 
   pressedKeys: Set<string> = new Set(); // Track pressed keys to declare direction in movement
 
-  gameEnded$ = this.gameService.gameEnded$;
+  gameEnded = this.gameService.gameEnded;
 
-  boardisPaused = this.gameService.gameisPaused
+  boardisPaused = this.gameService.gameisPaused;
 
   // ========Create the board based on the sizes of the screeen=======
   updateBoardSizes() {
@@ -149,7 +171,7 @@ export class BoardComponent {
       playerWidth: player.offsetWidth,
       playerHeight: player.offsetHeight,
       playerX: 100,
-      step: board.offsetWidth * 0.01
+      step: board.offsetWidth * 0.008
     };
   }
 
@@ -172,7 +194,7 @@ export class BoardComponent {
   // prevent the spawner from creating objects while the loop cannot move them (browser thing)
   @HostListener('document:visibilitychange')
   onVisibilityChange() {
-    if(this.gameService.getGameEnded()) return;
+    if(this.gameEnded()) return;
     if (document.hidden) {
       this.pauseBoard();
     }
@@ -187,7 +209,7 @@ export class BoardComponent {
   get playerRectangle() {
     return {
       x: this.geometry.playerX,
-      y: this.geometry.boardHeight - this.geometry.playerHeight,
+      y: this.geometry.boardHeight - this.geometry.playerHeight -1, //-1 to avoid barely catching them as they exit
       width: this.geometry.playerWidth,
       height: this.geometry.playerHeight
     };
@@ -205,19 +227,6 @@ export class BoardComponent {
   }
 
   ngOnInit() {
-  
-    this.gameEnded$.subscribe( (ended)=>{
-      if(ended){
-        this.pauseBoard()
-        clearInterval(this.gameIntervalId);
-        clearInterval(this.spawnIntervalId);
-
-       this.gameIntervalId = undefined;
-       this.spawnIntervalId = undefined; 
-      }else{
-        this.resetBoard()
-      }
-    })
 
   }
 
@@ -252,11 +261,12 @@ export class BoardComponent {
 
   pauseBoard() {
     this.boardisPaused.set(true);
+    this.pressedKeys.clear()
   }
 
   resumeBoard(){
     // Do not resume if the game has ended
-    if (!this.gameService.getGameEnded())
+    if (!this.gameEnded())
      this.gameService.gameisPaused.set(false);
   }
 
@@ -337,6 +347,7 @@ export class BoardComponent {
       }else{
         item.onCollision();
 
+        //TODO: find a better machanism for that
         if(this.gameService.getScore() % 4 === 0 ){
 
           this.increaseDifficulty()
@@ -348,12 +359,24 @@ export class BoardComponent {
   }
 
   increaseDifficulty() {
+
+    //TODO: use computated
+
+
+    this.gameService.increaseDifficulty()
+
     if (this.spawnIntervalId) {
       clearInterval(this.spawnIntervalId);
       this.spawnIntervalId = undefined;
     }
 
-    this.spawnRate *= 0.9;
+    if(this.gameService.difficultyLevel() % 2 ===0){
+      this.fallingMultiplier += 0.1
+    }else{
+      this.spawnRate *= 0.9;
+    }
+    
+
     this.startSpawner();
   }
 

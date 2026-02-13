@@ -1,7 +1,7 @@
 <div #board class="board-container">
 
     <!-- Stopped game messages -->
-    @if(gameEnded$ | async){
+    @if(gameEnded()){
         <h1 class="message game-over">Game Over!</h1>
     }@else if(boardisPaused()){
         <h1 class="message game-paused">Game Paused!</h1>

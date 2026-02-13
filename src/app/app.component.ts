@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, Signal, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { GameStateServiceService } from './shared/services/game-state-service.service';
 import { Subject } from 'rxjs';
@@ -14,7 +14,16 @@ import { takeUntil } from 'rxjs/operators';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'fallworld';
 
-  constructor(private gameService: GameStateServiceService) {}
+  constructor(private gameService: GameStateServiceService) {
+    
+    effect(
+      ()=>{
+        const ended = this.gameService.gameEnded()
+        this.gameEnded = ended;
+        this.highScore = this.gameService.getHighScore();
+      }
+    )
+  }
   
   readonly score:Signal<number> = this.gameService.score;
   highScore: number = this.gameService.getHighScore();
@@ -27,12 +36,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(){
 
-    this.gameService.gameEnded$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((ended) => {
-        this.gameEnded = ended;
-        this.highScore = this.gameService.getHighScore();
-      });
   }
 
   ngOnDestroy(){
