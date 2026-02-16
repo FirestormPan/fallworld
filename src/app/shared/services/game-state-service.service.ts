@@ -53,7 +53,7 @@ export class GameStateServiceService {
 
 
   pauseOrResume():void{
-    if(this.gameisPaused()){
+    if(this.gameisPaused() && !this.gameEnded()){
       this.gameisPaused.set(false);
     }else{
       this.gameisPaused.set(true);

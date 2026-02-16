@@ -1,7 +1,6 @@
 import { Component, effect, untracked, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { GameStateServiceService } from '../shared/services/game-state-service.service';
 
-
 type FallingItem ={
   x: number;
   y: number;
@@ -53,13 +52,21 @@ export class BoardComponent {
       }, 0
     )
 
+    effect(
+      ()=>{
+        const paused = this.gameService.gameisPaused()
+        if( paused )
+          this.pressedKeys.clear()
+      }
+    )
+
     
     effect(
       ()=>{
         const ended = this.gameService.gameEnded()
 
         if(ended){
-          this.pauseBoard()
+          this.gameService.gameisPaused.set(true)
           clearInterval(this.gameIntervalId);
           clearInterval(this.spawnIntervalId);
 
@@ -175,10 +182,9 @@ export class BoardComponent {
     if(this.gameService.gameisPaused()) return;
     
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-    event.preventDefault();
-    this.pressedKeys.add(event.key);
-  }
-
+      event.preventDefault();
+      this.pressedKeys.add(event.key);
+    }
   }
   @HostListener('window:keyup', ['$event'])
   onKeyUp(event: KeyboardEvent) {
@@ -190,7 +196,7 @@ export class BoardComponent {
   onVisibilityChange() {
     if(this.gameService.gameEnded()) return;
     if (document.hidden) {
-      this.pauseBoard();
+      this.gameService.gameisPaused.set(true)
     }
     //  else { //causes logical problems(restarts the board even when the user has declared pause by button) that would require a lot of changes for minimal gain   
     //   this.resumeBoard();
@@ -252,16 +258,6 @@ export class BoardComponent {
   }
 
 
-  pauseBoard() {
-    this.gameService.gameisPaused.set(true);
-    this.pressedKeys.clear()
-  }
-
-  resumeBoard(){
-    // Do not resume if the game has ended
-    if (!this.gameService.gameEnded())
-     this.gameService.gameisPaused.set(false);
-  }
 
   updatePlayerPosition() {
     if (this.pressedKeys.has('ArrowLeft')) {
@@ -380,6 +376,6 @@ export class BoardComponent {
     this.startGameLoop();
     this.startSpawner();
     
-    this.resumeBoard()
+    this.gameService.pauseOrResume() //will alway resume as expected
   }
 }
