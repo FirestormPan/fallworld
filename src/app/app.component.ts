@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy, Signal, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { GameStateServiceService } from './shared/services/game-state-service.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { StoppedBoxComponent } from "./stopped-box/stopped-box.component";
+import { BoardComponent } from './board/board.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, StoppedBoxComponent, BoardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

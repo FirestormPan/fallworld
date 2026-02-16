@@ -1,0 +1,14 @@
+
+    <!-- Stopped game messages -->
+    @if(gameEnded()){
+        <div>
+            <h1 class="message game-over">Game Over!</h1>
+            <button (click)="restartGame()">Play Aagain</button>
+        </div>
+    }@else if(gameIsPaused()){
+        <div>
+            <h1 class="message game-paused">Game Paused!</h1>
+            <button (click)="gameIsPaused.set(false)">Resume Game</button>
+        </div>
+    } 
+

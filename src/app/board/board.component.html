@@ -1,11 +1,5 @@
 <div #board class="board-container">
 
-    <!-- Stopped game messages -->
-    @if(gameEnded()){
-        <h1 class="message game-over">Game Over!</h1>
-    }@else if(boardisPaused()){
-        <h1 class="message game-paused">Game Paused!</h1>
-    }
 
     <div #player class="player" [style.left.px]="geometry.playerX">
         <div class="player-image"></div>

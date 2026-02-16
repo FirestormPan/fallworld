@@ -4,13 +4,13 @@
 
     <div class="dropdown"> <b>How to play</b>
         <div class="dropdown-content">
-        <b> Move using the keyboard arrows</b>
-        <p>Hitbox is the blue aura</p>
-        <p>Red Skull kills you instantly</p>
+        <b> Move using the keyboard arrows.</b> Hitbox is the blue aura
+        <p><b>Red Skull</b> kills you</p>
         <p>Broken Heart takes away a life</p>
+        <p>Blocked Broken Heart removes all Broken hearts</p>
+        <p>Purple heart gives a life</p>
         <p>Blue gives a point</p>
         <p>Gold star gives 5 points</p>
-        <p>Purple heart gives a life</p>
         </div>
     </div>
 
@@ -27,5 +27,8 @@
     <b class="lives">Life: {{ '❤'.repeat(lives()) || "Sadly you are NOT undead" }}</b>
 </div>
 
+<app-stopped-box></app-stopped-box>
+
 <br>
-<router-outlet />
+<app-board></app-board>
+<!-- <router-outlet /> -->

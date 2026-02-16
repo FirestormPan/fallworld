@@ -16,28 +16,6 @@ span{
     margin-left: 2vw;
 }
 
-button {
-  padding: 5px 15px;
-  font-size: 14px;
-  cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  color: #fff;
-  background-color: #04AA6D;
-  border: none;
-  border-radius: 15px;
-}
-button:active {
-  box-shadow: 0 5px #666;
-  transform: translateY(4px);
-}
-button:disabled {
-  background-color: grey;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: translateY(0);
-}
-
 
 .lives{
     display: inline-block;
