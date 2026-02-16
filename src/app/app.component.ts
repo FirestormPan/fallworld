@@ -11,7 +11,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   title = 'fallworld';
 
   constructor(private gameService: GameStateServiceService) {
@@ -23,6 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.highScore = this.gameService.getHighScore();
       }
     )
+    
   }
   
   readonly score:Signal<number> = this.gameService.score;
@@ -31,17 +32,12 @@ export class AppComponent implements OnInit, OnDestroy {
   paused = this.gameService.gameisPaused;
 
   lives = this.gameService.lives
-  
-  private destroy$ = new Subject<void>();
+
 
   ngOnInit(){
 
   }
 
-  ngOnDestroy(){
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   pauseOrResume(){
     this.gameService.pauseOrResume();

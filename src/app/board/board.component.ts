@@ -1,6 +1,5 @@
-import { Component, effect, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, effect, untracked, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { GameStateServiceService } from '../shared/services/game-state-service.service';
-import { AsyncPipe } from '@angular/common';
 
 
 type FallingItem ={
@@ -67,7 +66,9 @@ export class BoardComponent {
           this.gameIntervalId = undefined;
           this.spawnIntervalId = undefined; 
         }else{
-          this.resetBoard()
+          // Call reset without tracking its signal reads so this effect doesn't
+          // become dependent on computed signals like `spawnRate`.
+          untracked(() => this.resetBoard());
         }
       }, {allowSignalWrites: true}
     )
@@ -147,10 +148,6 @@ export class BoardComponent {
 
   FREQUENCY_TABLE:number[];
   FREQUENCY_SUM: number;
-
-  //will later be changed to variable difficulty
-  spawnRate = 3000
-  fallingMultiplier:number = 1;
 
   fallingItems: FallingItem[] = [];
 
@@ -286,8 +283,9 @@ export class BoardComponent {
   }
 
   updateItemPositions() {
+    const multiplier = this.gameService.fallingSpeedMultiplier();
     for (let item of this.fallingItems) {
-      item.y += item.fallSpeed * this.fallingMultiplier;
+      item.y += item.fallSpeed * multiplier;
     }
   }
 
@@ -297,7 +295,7 @@ export class BoardComponent {
     this.spawnIntervalId = window.setInterval(() => {
       if(this.boardisPaused()) return;
       this.spawnItem();
-    }, this.spawnRate);
+    }, this.gameService.spawnRate());
   }
 
   spawnItem() {
@@ -322,7 +320,7 @@ export class BoardComponent {
   pickRandomItemType(){
     const ITEM_TYPES = Object.keys(this.ITEM_DEFINITIONS);
 
-    //get a random value: 0 - SUMofFrequencies
+    //get a random value: 0 - FREQUENCY_SUM
     let indicator= Math.random() * this.FREQUENCY_SUM
     
     // iterate through frequencies untill value is within bounds
@@ -360,20 +358,11 @@ export class BoardComponent {
 
   increaseDifficulty() {
 
-    //TODO: use computated
-
-
     this.gameService.increaseDifficulty()
-
+    
     if (this.spawnIntervalId) {
       clearInterval(this.spawnIntervalId);
       this.spawnIntervalId = undefined;
-    }
-
-    if(this.gameService.difficultyLevel() % 2 ===0){
-      this.fallingMultiplier += 0.1
-    }else{
-      this.spawnRate *= 0.9;
     }
     
 
@@ -384,7 +373,6 @@ export class BoardComponent {
     //reset all values
     this.fallingItems =[];
     this.geometry.playerX = 100;
-    this.spawnRate = 3000;
     this.pressedKeys.clear();
 
     clearInterval(this.gameIntervalId )

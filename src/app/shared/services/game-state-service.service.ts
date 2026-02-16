@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 @Injectable({
@@ -12,11 +12,17 @@ export class GameStateServiceService {
   private _lives = signal(3); 
   readonly lives = this._lives.asReadonly();
 
-  difficultyLevel = signal(1);
+  difficultyLevel = signal(0);
+  readonly spawnRate = computed(
+    ()=>
+     Math.max( Math.pow( 1.2, ( -this.difficultyLevel() / 2 ) )  * 3000  , 250) // f(x) = a^(-x/b) for a smooth decline. after spawnrate reaches 250, we stop decreasing it 
+  );
+  readonly fallingSpeedMultiplier = computed(
+    ()=> this.difficultyLevel() * 0.05 + 1
+  )
 
 
   gameEnded = signal(false)
-
   public  gameisPaused = signal(false)
   
   constructor() {}
@@ -70,6 +76,8 @@ export class GameStateServiceService {
   resetGame():void{
     this.score.set(0)
     this._lives.set(3)
+
+    this.difficultyLevel.set(0)
 
     this.gameEnded.set(false);
   }
