@@ -66,7 +66,6 @@ export class BoardComponent {
         const ended = this.gameService.gameEnded()
 
         if(ended){
-          this.gameService.gameisPaused.set(true)
           clearInterval(this.gameIntervalId);
           clearInterval(this.spawnIntervalId);
 
@@ -189,18 +188,6 @@ export class BoardComponent {
   @HostListener('window:keyup', ['$event'])
   onKeyUp(event: KeyboardEvent) {
     this.pressedKeys.delete(event.key);
-  }
-
-  // prevent the spawner from creating objects while the loop cannot move them (browser thing)
-  @HostListener('document:visibilitychange')
-  onVisibilityChange() {
-    if(this.gameService.gameEnded()) return;
-    if (document.hidden) {
-      this.gameService.gameisPaused.set(true)
-    }
-    //  else { //causes logical problems(restarts the board even when the user has declared pause by button) that would require a lot of changes for minimal gain   
-    //   this.resumeBoard();
-    // }
   }
 
   //function to attach and detach resize event listener
@@ -375,7 +362,5 @@ export class BoardComponent {
     //restart the loops
     this.startGameLoop();
     this.startSpawner();
-    
-    this.gameService.pauseOrResume() //will alway resume as expected
   }
 }

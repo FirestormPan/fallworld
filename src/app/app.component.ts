@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, Signal, effect, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { GameStateServiceService } from './shared/services/game-state-service.service';
 import { StoppedBoxComponent } from "./stopped-box/stopped-box.component";
@@ -32,6 +32,19 @@ export class AppComponent implements OnInit {
   paused = this.gameService.gameisPaused;
 
   lives = this.gameService.lives
+
+  
+  // prevent the spawner from creating objects while the loop cannot move them (browser thing)
+  @HostListener('document:visibilitychange')
+  onVisibilityChange() {
+    if(this.gameService.gameEnded()) return;
+    if (document.hidden) {
+      this.gameService.gameisPaused.set(true)
+    }
+    //  else { //causes logical problems(restarts the board even when the user has declared pause by button) that would require a lot of changes for minimal gain   
+    //   this.resumeBoard();
+    // }
+  }
 
 
   ngOnInit(){
