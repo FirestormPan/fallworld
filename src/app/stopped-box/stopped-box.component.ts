@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { GameStateServiceService } from '../shared/services/game-state-service.service';
+import { GameStateService } from '../shared/services/game-state-service.service';
 
 @Component({
   selector: 'app-stopped-box',
@@ -13,7 +13,7 @@ export class StoppedBoxComponent {
   gameEnded = this.gameService.gameEnded
   gameIsPaused = this.gameService.gameisPaused
 
-  constructor(private gameService: GameStateServiceService ) {}
+  constructor(private gameService: GameStateService ) {}
 
 
   restartGame(){

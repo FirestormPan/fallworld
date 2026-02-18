@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Signal, effect, HostListener } from '@angular/core';
+import { Component, OnInit, Signal, effect, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { GameStateServiceService } from './shared/services/game-state-service.service';
+import { GameStateService } from './shared/services/game-state-service.service';
 import { StoppedBoxComponent } from "./stopped-box/stopped-box.component";
 import { BoardComponent } from './board/board.component';
 
@@ -14,21 +14,12 @@ import { BoardComponent } from './board/board.component';
 export class AppComponent implements OnInit {
   title = 'fallworld';
 
-  constructor(private gameService: GameStateServiceService) {
-    
-    effect(
-      ()=>{
-        const ended = this.gameService.gameEnded()
-        this.gameEnded = ended;
-        this.highScore = this.gameService.getHighScore();
-      }
-    )
-    
+  constructor(private gameService: GameStateService) {
   }
   
   readonly score:Signal<number> = this.gameService.score;
-  highScore: number = this.gameService.getHighScore();
-  gameEnded: boolean = false;
+  highScore: Signal<number> = this.gameService.highScore
+  gameEnded = this.gameService.gameEnded
   paused = this.gameService.gameisPaused;
 
   lives = this.gameService.lives

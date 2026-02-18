@@ -1,5 +1,5 @@
 import { Component, effect, untracked, ElementRef, HostListener, ViewChild } from '@angular/core';
-import { GameStateServiceService } from '../shared/services/game-state-service.service';
+import { GameStateService } from '../shared/services/game-state-service.service';
 
 type FallingItem ={
   x: number;
@@ -38,7 +38,7 @@ interface BoardGeometry{
 })
 export class BoardComponent {
 
-  constructor(private gameService: GameStateServiceService) {
+  constructor(private gameService: GameStateService) {
     // calculate a table with all frequencies and the sum of frequencies
     const items = Object.values(this.ITEM_DEFINITIONS); 
     // create frequencies table
@@ -50,33 +50,6 @@ export class BoardComponent {
       (sum, item: ItemDetails)=> {
         return sum += item.spawnFrequency
       }, 0
-    )
-
-    effect(
-      ()=>{
-        const paused = this.gameService.gameisPaused()
-        if( paused )
-          this.pressedKeys.clear()
-      }
-    )
-
-    
-    effect(
-      ()=>{
-        const ended = this.gameService.gameEnded()
-
-        if(ended){
-          clearInterval(this.gameIntervalId);
-          clearInterval(this.spawnIntervalId);
-
-          this.gameIntervalId = undefined;
-          this.spawnIntervalId = undefined; 
-        }else{
-          // Call reset without tracking its signal reads so this effect doesn't
-          // become dependent on computed signals like `spawnRate`.
-          untracked(() => this.resetBoard());
-        }
-      }, {allowSignalWrites: true}
     )
 
   }
@@ -159,6 +132,20 @@ export class BoardComponent {
 
   pressedKeys: Set<string> = new Set(); // Track pressed keys to declare direction in movement
 
+  //====== Keyboard Input Handling ======
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if(this.gameService.gameisPaused()) return;
+    
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      this.pressedKeys.add(event.key);
+    }
+  }
+  @HostListener('window:keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    this.pressedKeys.delete(event.key);
+  }
 
   // ========Create the board based on the sizes of the screeen=======
   updateBoardSizes() {
@@ -173,21 +160,6 @@ export class BoardComponent {
       playerX: 100,
       step: board.offsetWidth * 0.008
     };
-  }
-
-  //====== Keyboard Input Handling ======
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    if(this.gameService.gameisPaused()) return;
-    
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      event.preventDefault();
-      this.pressedKeys.add(event.key);
-    }
-  }
-  @HostListener('window:keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
-    this.pressedKeys.delete(event.key);
   }
 
   //function to attach and detach resize event listener
@@ -222,6 +194,45 @@ export class BoardComponent {
     window.addEventListener('resize', this.resizeHandler);
     this.startGameLoop();
     this.startSpawner();
+
+    effect(
+      ()=>{
+        const paused = this.gameService.gameisPaused()
+        if( paused )
+          this.pressedKeys.clear()
+      }
+    )
+
+    effect(
+      ()=>{
+        const difficulty = this.gameService.difficultyLevel()
+           
+          if (this.spawnIntervalId) {
+            clearInterval(this.spawnIntervalId);
+            this.spawnIntervalId = undefined;
+          }
+          this.startSpawner();
+      }
+    )
+
+    //whenever the state of gameEnded changes, remove the intervals for spawning items and moving
+    effect(
+      ()=>{
+        const ended = this.gameService.gameEnded()
+
+        if(ended){
+          clearInterval(this.gameIntervalId);
+          clearInterval(this.spawnIntervalId);
+
+          this.gameIntervalId = undefined;
+          this.spawnIntervalId = undefined; 
+        }else{
+          // Call reset without tracking its signal reads so this effect doesn't
+          // become dependent on computed signals like spawnRate.
+          untracked(() => this.resetBoard());
+        }
+      }
+    )
   }
 
   ngOnDestroy() {
@@ -243,8 +254,6 @@ export class BoardComponent {
 
     }, 20); // roughly 50fps
   }
-
-
 
   updatePlayerPosition() {
     if (this.pressedKeys.has('ArrowLeft')) {
@@ -323,27 +332,10 @@ export class BoardComponent {
         return true
       }else{
         item.onCollision();
-
-        //TODO: find a better machanism for that
-        if(this.gameService.getScore() % 4 === 0 ){
-
-          this.increaseDifficulty()
-        }
         
         return false
       }
     });
-  }
-
-  increaseDifficulty() {
-
-    this.gameService.increaseDifficulty()
-    
-    if (this.spawnIntervalId) {
-      clearInterval(this.spawnIntervalId);
-      this.spawnIntervalId = undefined;
-    }
-    this.startSpawner();
   }
 
   resetBoard(){

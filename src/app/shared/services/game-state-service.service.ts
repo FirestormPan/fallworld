@@ -3,15 +3,22 @@ import { computed, Injectable, signal } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class GameStateServiceService {
-  private highScore: number = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')!) : 0;
-
-  score = signal(0)
+export class GameStateService {
+  highScore_value: number = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')!) : 0;
+  private _highScore = signal(this.highScore_value)
+  readonly highScore = this._highScore.asReadonly();
+  
+  private _score = signal(0)
+  readonly score = this._score.asReadonly();
 
   private _lives = signal(3); 
   readonly lives = this._lives.asReadonly();
 
-  difficultyLevel = signal(0);
+  readonly difficultyLevel = computed(
+    ()=>{
+      return Math.floor(this.score() /4)
+    }
+  )
   readonly spawnRate = computed(
     ()=>
      Math.max( Math.pow( 1.2, ( -this.difficultyLevel() / 2 ) )  * 3000  , 250) // f(x) = a^(-x/b) for a smooth decline. after spawnrate reaches 250, we stop decreasing it 
@@ -22,7 +29,7 @@ export class GameStateServiceService {
 
 
   gameEnded = signal(false)
-  public  gameisPaused = signal(false)
+  public gameisPaused = signal(false)
   
   constructor() {}
 
@@ -31,23 +38,15 @@ export class GameStateServiceService {
   }
 
   scoreIncremenet(value: number):void{
-    this.score.update( score => score + value)
+    this._score.update( score => score + value)
   }
 
-
-  getHighScore(): number {
-    return this.highScore;
-  }
 
   setHighScore(): void {
-    if (this.getScore() > this.highScore) {
-      this.highScore = this.getScore();
-      localStorage.setItem('highScore', this.highScore.toString());
+    if (this.getScore() > this.highScore()) {
+      this._highScore.set(this.getScore());
+      localStorage.setItem('highScore', this.highScore().toString());
     }
-  }
-
-  increaseDifficulty(): void{
-    this.difficultyLevel.update( value => value +1)
   }
 
 
@@ -73,10 +72,8 @@ export class GameStateServiceService {
   }
 
   resetGame():void{
-    this.score.set(0)
+    this._score.set(0)
     this._lives.set(3)
-
-    this.difficultyLevel.set(0)
 
     this.gameEnded.set(false);
   }
