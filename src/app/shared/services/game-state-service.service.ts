@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, Injectable, Signal, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -15,20 +15,23 @@ export class GameStateService {
   readonly lives = this._lives.asReadonly();
 
   readonly difficultyLevel = computed(
-    ()=>{
-      return Math.floor(this.score() /4)
-    }
+    ()=> Math.floor(this.score() /4)
   )
   readonly spawnRate = computed(
     ()=>
-     Math.max( Math.pow( 1.2, ( -this.difficultyLevel() / 2 ) )  * 3000  , 250) // f(x) = a^(-x/b) for a smooth decline. after spawnrate reaches 250, we stop decreasing it 
+     Math.max( Math.pow( 1.2, ( -this.difficultyLevel() / 2 ) )  * 3000  , 250) // f(x) = a^(-x/b), a>1 for a smooth decline. after spawnrate reaches 250, we stop decreasing it 
   );
   readonly fallingSpeedMultiplier = computed(
-    ()=> this.difficultyLevel() * 0.05 + 1
+    ()=>{
+      let fallspeed = this.difficultyLevel() * 0.05 + 1
+      console.log("fallspeed level calculated: " + fallspeed)
+      return fallspeed
+    }
   )
 
+  private _gameEnded = signal(false)
+  readonly gameEnded = this._gameEnded.asReadonly();
 
-  gameEnded = signal(false)
   public gameisPaused = signal(false)
   
   constructor() {}
@@ -41,14 +44,12 @@ export class GameStateService {
     this._score.update( score => score + value)
   }
 
-
   setHighScore(): void {
     if (this.getScore() > this.highScore()) {
       this._highScore.set(this.getScore());
       localStorage.setItem('highScore', this.highScore().toString());
     }
   }
-
 
   pauseOrResume():void{
     if(this.gameisPaused() && !this.gameEnded()){
@@ -68,14 +69,14 @@ export class GameStateService {
 
   endGame():void{
     this.setHighScore()
-    this.gameEnded.set(true);
+    this._gameEnded.set(true);
   }
 
   resetGame():void{
     this._score.set(0)
     this._lives.set(3)
 
-    this.gameEnded.set(false);
+    this._gameEnded.set(false);
   }
 
 }

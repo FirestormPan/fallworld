@@ -52,6 +52,45 @@ export class BoardComponent {
       }, 0
     )
 
+    effect(
+      ()=>{
+        const paused = this.gameService.gameisPaused()
+        if( paused )
+          this.pressedKeys.clear()
+      }
+    )
+
+    effect(
+      ()=>{
+        const difficulty = this.gameService.difficultyLevel()
+           
+          if (this.spawnIntervalId) {
+            clearInterval(this.spawnIntervalId);
+            this.spawnIntervalId = undefined;
+          }
+          this.startSpawner();
+      }
+    )
+
+    
+    //whenever the state of gameEnded changes, remove the intervals for spawning items and moving
+    effect(
+      ()=>{
+        const ended = this.gameService.gameEnded()
+
+        if(ended){
+          clearInterval(this.gameIntervalId);
+          clearInterval(this.spawnIntervalId);
+
+          this.gameIntervalId = undefined;
+          this.spawnIntervalId = undefined; 
+        }else{
+          // Call reset without tracking its signal reads so this effect doesn't
+          // become dependent on computed signals like spawnRate.
+          untracked(() => this.resetBoard());
+        }
+      }
+    )
   }
 
   private gameIntervalId?: number;
@@ -195,44 +234,7 @@ export class BoardComponent {
     this.startGameLoop();
     this.startSpawner();
 
-    effect(
-      ()=>{
-        const paused = this.gameService.gameisPaused()
-        if( paused )
-          this.pressedKeys.clear()
-      }
-    )
-
-    effect(
-      ()=>{
-        const difficulty = this.gameService.difficultyLevel()
-           
-          if (this.spawnIntervalId) {
-            clearInterval(this.spawnIntervalId);
-            this.spawnIntervalId = undefined;
-          }
-          this.startSpawner();
-      }
-    )
-
-    //whenever the state of gameEnded changes, remove the intervals for spawning items and moving
-    effect(
-      ()=>{
-        const ended = this.gameService.gameEnded()
-
-        if(ended){
-          clearInterval(this.gameIntervalId);
-          clearInterval(this.spawnIntervalId);
-
-          this.gameIntervalId = undefined;
-          this.spawnIntervalId = undefined; 
-        }else{
-          // Call reset without tracking its signal reads so this effect doesn't
-          // become dependent on computed signals like spawnRate.
-          untracked(() => this.resetBoard());
-        }
-      }
-    )
+    
   }
 
   ngOnDestroy() {

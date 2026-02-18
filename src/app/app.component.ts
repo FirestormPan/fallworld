@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
       this.gameService.gameisPaused.set(true)
     }
     //  else { //causes logical problems(restarts the board even when the user has declared pause by button) that would require a lot of changes for minimal gain   
-    //   this.resumeBoard();
+    //   this.gameService.gameisPaused.set(false)
     // }
   }
 
