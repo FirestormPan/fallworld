@@ -7,8 +7,10 @@ div{
     align-items: center;
     text-align: center;
 
-    width: 30vw;
-    height: 30vh;
+    width: 40vw;
+    height: 45vh;
+
+    overflow: visible;
 }
 
 button{
@@ -29,4 +31,9 @@ button{
 
 .message.game-paused{
   color: blue;
+}
+
+p{
+  padding: 25px;
+  text-align: center;
 }

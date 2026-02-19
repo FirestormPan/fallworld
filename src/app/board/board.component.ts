@@ -39,19 +39,9 @@ interface BoardGeometry{
 export class BoardComponent {
 
   constructor(private gameService: GameStateService) {
-    // calculate a table with all frequencies and the sum of frequencies
-    const items = Object.values(this.ITEM_DEFINITIONS); 
-    // create frequencies table
-    this.FREQUENCY_TABLE = items.map(
-      (item) =>{ return item.spawnFrequency}
-    )
-    // Calculate the sum of all frequencies
-    this.FREQUENCY_SUM = items.reduce(
-      (sum, item: ItemDetails)=> {
-        return sum += item.spawnFrequency
-      }, 0
-    )
 
+    //effects need to exist in an injection context (https://angular.dev/guide/di/dependency-injection-context)
+    // constructor provides it
     effect(
       ()=>{
         const paused = this.gameService.gameisPaused()
@@ -62,7 +52,7 @@ export class BoardComponent {
 
     effect(
       ()=>{
-        const difficulty = this.gameService.difficultyLevel()
+        this.gameService.difficultyLevel()
            
           if (this.spawnIntervalId) {
             clearInterval(this.spawnIntervalId);
@@ -71,7 +61,6 @@ export class BoardComponent {
           this.startSpawner();
       }
     )
-
     
     //whenever the state of gameEnded changes, remove the intervals for spawning items and moving
     effect(
@@ -164,8 +153,8 @@ export class BoardComponent {
 
   };
 
-  FREQUENCY_TABLE:number[];
-  FREQUENCY_SUM: number;
+  FREQUENCY_TABLE:number[]=[];
+  FREQUENCY_SUM: number=0;
 
   fallingItems: FallingItem[] = [];
 
@@ -225,6 +214,18 @@ export class BoardComponent {
   }
 
   ngOnInit() {
+    // calculate a table with all frequencies and the sum of frequencies
+    const items = Object.values(this.ITEM_DEFINITIONS); 
+    // create frequencies table
+    this.FREQUENCY_TABLE = items.map(
+      (item) =>{ return item.spawnFrequency}
+    )
+    // Calculate the sum of all frequencies
+    this.FREQUENCY_SUM = items.reduce(
+      (sum, item: ItemDetails)=> {
+        return sum += item.spawnFrequency
+      }, 0
+    )
   }
 
 
@@ -244,6 +245,9 @@ export class BoardComponent {
   }
 
 
+  /**
+   * Starts an interval that updates the logic due to which the DOM is rendered/updated
+   */
   startGameLoop() {
     if (this.gameIntervalId) return;
 
@@ -254,9 +258,12 @@ export class BoardComponent {
       this.updateItemPositions();
       this.checkColisions();
 
-    }, 20); // roughly 50fps
+    }, 17); // roughly 60fps
   }
 
+  /**
+   * Updates only the logical numbers, not the DOM
+   */
   updatePlayerPosition() {
     if (this.pressedKeys.has('ArrowLeft')) {
       this.geometry.playerX = Math.max(0, this.geometry.playerX - this.geometry.step);
@@ -266,6 +273,9 @@ export class BoardComponent {
     }
   }
 
+  /**
+   * remove any items that have left the board, or are marked as shouldBeDestroyed by other parts of the code
+   */
   destroyItems(){ 
     this.fallingItems = this.fallingItems.filter((item) =>{
       return (item.y < this.geometry.boardHeight) && !item.shouldBeDestroyed;
@@ -288,6 +298,9 @@ export class BoardComponent {
     }, this.gameService.spawnRate());
   }
 
+  /**
+   * Creates 
+   */
   spawnItem() {
     const randomType = this.pickRandomItemType();
 
@@ -307,6 +320,10 @@ export class BoardComponent {
     this.fallingItems.push(newItem);
   }
 
+  /**
+   * Dictates which of the item types will be created. Weighted randomness, based on item type weights as per its deffinition.
+   * @returns the item type (string)
+   */
   pickRandomItemType(){
     const ITEM_TYPES = Object.keys(this.ITEM_DEFINITIONS);
 

@@ -7,7 +7,7 @@ import { BoardComponent } from './board/board.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, StoppedBoxComponent, BoardComponent],
+  imports: [ StoppedBoxComponent, BoardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
