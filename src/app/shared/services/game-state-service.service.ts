@@ -15,16 +15,21 @@ export class GameStateService {
   readonly lives = this._lives.asReadonly();
 
   readonly difficultyLevel = computed(
-    ()=> Math.floor(this.score() /4)
+    ()=>  Math.floor(this.score() /4)
   )
+  public spawnRateFactor = signal(1); //Used by FallingItems to cause special effects on the spanw rate
   readonly spawnRate = computed(
-    ()=>
-     Math.max( Math.pow( 1.2, ( -this.difficultyLevel() / 2 ) )  * 3000  , 250) // f(x) = a^(-x/b), a>1 for a smooth decline. after spawnrate reaches 250, we stop decreasing it 
+    ()=>{
+      let baseRate = Math.max( Math.pow( 1.2, ( -this.difficultyLevel() / 2 ) )  * 3000  , 250) // f(x) = a^(-x/b), a>1 for a smooth decline. after spawnrate reaches 250, stop decreasing it 
+      return baseRate * this.spawnRateFactor()
+    }
+
   );
+  public fallingSpeedFactor=signal(1) //Used by FallingItems to cause special effects on the falling Speed
   readonly fallingSpeedMultiplier = computed(
     ()=>{
-      let fallspeed = this.difficultyLevel() * 0.05 + 1
-      console.log("fallspeed level calculated: " + fallspeed)
+      let fallspeed = (this.difficultyLevel() * 0.05 + 1) * this.fallingSpeedFactor();
+      console.log("fallspeed calculated: " + fallspeed)
       return fallspeed
     }
   )

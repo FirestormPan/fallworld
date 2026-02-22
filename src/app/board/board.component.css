@@ -101,3 +101,10 @@
   background-position: center;
 }
 
+.falling-item.freeze{
+  border-radius: 40%;
+  background-color: rgb(129, 215, 235);
+  background-image:  url("/assets/images/snowflake.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}

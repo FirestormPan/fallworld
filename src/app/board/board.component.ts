@@ -1,6 +1,7 @@
 import { Component, effect, untracked, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { GameStateService } from '../shared/services/game-state-service.service';
 
+/** Represents a single falling item instance on the board with its position, dimensions, and behavior */
 type FallingItem ={
   x: number;
   y: number;
@@ -12,11 +13,12 @@ type FallingItem ={
   onCollision: ()=>void;
 }
 
+/** Defines the properties and behavior template for each item type in the game */
 type ItemDetails = {
   fallSpeed: number,
   width:number,
   height: number,
-  spawnFrequency: number,
+  spawnFrequency: number,  // Higher = more frequent spawning (used for weighted randomness)
   onCollision: ()=>void 
 }
 
@@ -146,13 +148,33 @@ export class BoardComponent {
         )
       }
     },
+    "freeze":{
+      width: 35,
+      height: 35,
+      fallSpeed: 1,
+      spawnFrequency: 5,
+      onCollision: ()=>{
+        //Sets Falling speed (factor) to 0, then gradually raises it back to where it was (over the course of x seconds)
+        //Also, sets the Spawn Rate (factor) to a Large number, effectively stopping the spawner, for the same duration
+        const LARGE_NUMBER = 50000;
 
-    //Todo: 
-    // slow down falling items & spawnrate for a little bit
-    // stop spawning for a bit
+        this.gameService.fallingSpeedFactor.set(0)
+        const currentSpawnRate = this.gameService.spawnRateFactor()
+        this.gameService.spawnRateFactor.set(LARGE_NUMBER)
 
+        const interval = setInterval(() => {
+          this.gameService.fallingSpeedFactor.update(value => value + 0.250)
+          if (this.gameService.fallingSpeedFactor() >= 1) {
+            this.gameService.spawnRateFactor.set(currentSpawnRate)
+            clearInterval(interval)
+          }
+        }, 750)
+      }
+    }
   };
 
+  // Pre-calculated frequency table for weighted random item selection
+  // Built in ngOnInit by extracting spawnFrequency from each item type
   FREQUENCY_TABLE:number[]=[];
   FREQUENCY_SUM: number=0;
 
@@ -214,18 +236,10 @@ export class BoardComponent {
   }
 
   ngOnInit() {
-    // calculate a table with all frequencies and the sum of frequencies
+    // Build frequency table for weighted random selection in pickRandomItemType()
     const items = Object.values(this.ITEM_DEFINITIONS); 
-    // create frequencies table
-    this.FREQUENCY_TABLE = items.map(
-      (item) =>{ return item.spawnFrequency}
-    )
-    // Calculate the sum of all frequencies
-    this.FREQUENCY_SUM = items.reduce(
-      (sum, item: ItemDetails)=> {
-        return sum += item.spawnFrequency
-      }, 0
-    )
+    this.FREQUENCY_TABLE = items.map((item) => item.spawnFrequency);
+    this.FREQUENCY_SUM = items.reduce((sum, item: ItemDetails) => sum + item.spawnFrequency, 0);
   }
 
 
@@ -233,9 +247,7 @@ export class BoardComponent {
     this.updateBoardSizes();
     window.addEventListener('resize', this.resizeHandler);
     this.startGameLoop();
-    this.startSpawner();
-
-    
+    this.startSpawner(); 
   }
 
   ngOnDestroy() {
@@ -299,7 +311,7 @@ export class BoardComponent {
   }
 
   /**
-   * Creates 
+   * Creates a fallingItem and pushes it to the fallingItems array, which is used to render the items in the DOM and update their positions. The type of the item is dictated by the pickRandomItemType function, which uses weighted randomness based on the spawnFrequency property of each item type in the ITEM_DEFINITIONS. Each item also has an onCollision function, which is called when the item collides with the player, and dictates what happens to the game state when that specific item is caught.
    */
   spawnItem() {
     const randomType = this.pickRandomItemType();
@@ -321,27 +333,28 @@ export class BoardComponent {
   }
 
   /**
-   * Dictates which of the item types will be created. Weighted randomness, based on item type weights as per its deffinition.
+   * Selects a random item type using weighted randomness based on spawnFrequency.
+   * Higher spawnFrequency = greater probability of selection.
+   * Algorithm: generates random number 0-FREQUENCY_SUM, then iterates through cumulative frequencies
+   * to find which item type's range contains that number.
    * @returns the item type (string)
    */
   pickRandomItemType(){
     const ITEM_TYPES = Object.keys(this.ITEM_DEFINITIONS);
 
-    //get a random value: 0 - FREQUENCY_SUM
-    let indicator= Math.random() * this.FREQUENCY_SUM
+    // Generate random indicator in range [0, FREQUENCY_SUM]
+    let indicator = Math.random() * this.FREQUENCY_SUM;
     
-    // iterate through frequencies untill value is within bounds
-    //pointer shows which part of the line we examine whether the random indicator is in it
+    // Find which item type range contains the indicator using cumulative frequency
     let pointer = 0;
-    for(let [index, fr] of this.FREQUENCY_TABLE.entries()){
-
-      pointer += fr
-      if(indicator<= pointer){        
+    for(let [index, frequency] of this.FREQUENCY_TABLE.entries()){
+      pointer += frequency;
+      if(indicator <= pointer) {        
         return ITEM_TYPES[index];
       }
     }
 
-    console.log("we should not be here")
+    // Fallback (should not reach here due to floating-point precision)
     return "good";
   }
 
