@@ -1,28 +1,24 @@
 <div class="head">
     
-    <h3 class="title">Fall world</h3>
-
+    <span class="title">Fall World</span>
+    
+    <button [disabled]="gameEnded()" (click)="pauseOrResume()">{{ paused() ? 'Resume' : 'Pause' }}</button>
+    <button [disabled]="!gameEnded()" (click)="playAgain()">Play Again</button>
+    
     <div class="dropdown"> <b>How to play</b>
         <div class="dropdown-content">
-        <b> Move using the keyboard arrows.</b> Hitbox is the blue aura
-        <p><b>Red Skull</b> kills you</p>
-        <p>Broken Heart takes away a life</p>
-        <p>Blocked Broken Heart removes all Broken hearts</p>
-        <p>Purple heart gives a life</p>
-        <p>Blue gives a point</p>
-        <p>Any items not mentioned here, are good</p>
+            <b> Move using the keyboard arrows.</b> Hitbox is the blue aura
+            <p><b>Red Skull</b> kills you</p>
+            <p>Broken Heart takes away a life</p>
+            <p>Blocked Broken Heart removes all Broken hearts</p>
+            <p>Purple heart gives a life</p>
+            <p>Blue gives a point</p>
+            <p>Any items not mentioned here, are good</p>
         </div>
     </div>
 
-
     <span>High Score: {{ highScore() }} </span>
     <span>Your Score: {{ score() }}</span>
-    
-    
-    
-    <button [disabled]="!gameEnded()" (click)="playAgain()">Play Again</button>
-    <span></span>
-    <button [disabled]="gameEnded()" (click)="pauseOrResume()">{{ paused() ? 'Resume' : 'Pause' }}</button>
     
     <b class="lives">Life: {{ '❤'.repeat(lives()) || "Sadly you are NOT undead" }}</b>
 </div>

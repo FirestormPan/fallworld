@@ -12,7 +12,6 @@ import { BoardComponent } from './board/board.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  title = 'fallworld';
 
   constructor(private gameService: GameStateService) {
   }

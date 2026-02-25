@@ -1,38 +1,32 @@
 .head{
-    display: inline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+}
+
+.head * {
+  margin-right: 2vw;
 }
 
 .title{
-    width: 100vw;
-    background-color: antiquewhite;
-    align-items: flex-start;
-    display: inline;
-    padding: 5px;
-    margin-right: 5px
-}
-
-span{
-    margin-right: 3vw;
-    margin-left: 2vw;
+  font-size: large;
+  font-weight: bold;
+  padding: 5px;
 }
 
 
 .lives{
-    display: inline-block;
-    min-width: 150px;
-    color: rgb(226, 11, 140);
-    text-align: left;
-    margin-left: 10px;
+  color: rgb(226, 11, 140);
+  text-align: left;
 }
 
 
 .dropdown {
   position: relative;
-  display: inline;
   color: #04AA6D;
 }
 .dropdown-content {
-  z-index: 1;
+  z-index: 10;
   display: none;
   position: absolute;
   color: #04AA6D;

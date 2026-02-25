@@ -141,7 +141,7 @@ export class BoardComponent {
       width: 30,
       height: 30,
       fallSpeed: 2,
-      spawnFrequency: 5,
+      spawnFrequency: 4,
       onCollision: ()=>{
         this.fallingItems.forEach(
           item=>{ if(item.type === "lose-life") item.shouldBeDestroyed = true }
@@ -152,7 +152,7 @@ export class BoardComponent {
       width: 35,
       height: 35,
       fallSpeed: 1,
-      spawnFrequency: 5,
+      spawnFrequency: 2,
       onCollision: ()=>{
         //Sets Falling speed (factor) to 0, then gradually raises it back to where it was (over the course of x seconds)
         //Also, sets the Spawn Rate (factor) to a Large number, effectively stopping the spawner, for the same duration
