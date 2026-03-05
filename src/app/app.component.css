@@ -1,6 +1,7 @@
 .head{
   display: inline-flex;
-  align-items: center;
+  width: 100%;
+  align-items: stretch;
   min-height: 25px;
 }
 
@@ -12,6 +13,8 @@
   font-size: large;
   font-weight: bold;
   padding: 5px;
+
+  text-shadow: 2px 2px 4px green;
 }
 
 
@@ -37,4 +40,9 @@
 }
 .dropdown:hover .dropdown-content {
   display: block;
+}
+
+.copyright{
+  margin-left: auto;
+  word-break: break-all;
 }

@@ -29,7 +29,6 @@ export class GameStateService {
   readonly fallingSpeedMultiplier = computed(
     ()=>{
       let fallspeed = (this.difficultyLevel() * 0.05 + 1) * this.fallingSpeedFactor();
-      console.log("fallspeed calculated: " + fallspeed)
       return fallspeed
     }
   )

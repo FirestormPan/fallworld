@@ -181,6 +181,10 @@ export class BoardComponent {
   fallingItems: FallingItem[] = [];
 
   pressedKeys: Set<string> = new Set(); // Track pressed keys to declare direction in movement
+  get facesRight(): string{
+    return this.pressedKeys.has('ArrowRight')? 'rotateY(180deg)': '';
+
+  } 
 
   //====== Keyboard Input Handling ======
   @HostListener('window:keydown', ['$event'])
@@ -218,7 +222,7 @@ export class BoardComponent {
   get playerRectangle() {
     return {
       x: this.geometry.playerX,
-      y: this.geometry.boardHeight - this.geometry.playerHeight -1, //-1 to avoid barely catching them as they exit
+      y: this.geometry.boardHeight - this.geometry.playerHeight,
       width: this.geometry.playerWidth,
       height: this.geometry.playerHeight
     };
@@ -290,7 +294,7 @@ export class BoardComponent {
    */
   destroyItems(){ 
     this.fallingItems = this.fallingItems.filter((item) =>{
-      return (item.y < this.geometry.boardHeight) && !item.shouldBeDestroyed;
+      return (item.y+item.height < this.geometry.boardHeight) && !item.shouldBeDestroyed;
     })
   }
 
